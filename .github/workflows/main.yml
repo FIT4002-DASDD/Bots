@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create out of source build directory
-        run: mkdir build && cd build
+        run: pwd && mkdir build && cd build
       - name: Generate project Makefile buildsystem
         run: cmake ..
       - name: Building
