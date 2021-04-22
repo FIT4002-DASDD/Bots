@@ -12,11 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create out of source build directory
-        run: pwd && mkdir build && cd build
+        run: pwd && mkdir build
       - name: Generate project Makefile buildsystem
-        run: cmake ..
+        run: pwd && cd build && cmake ..
       - name: Building
-        run: make
+        run: pwd && cd build && make
   test:
     name: Test Push Service
     needs:
