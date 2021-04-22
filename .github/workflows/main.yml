@@ -6,9 +6,11 @@ jobs:
   build:
     name: Build Push Service
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./push-service
     steps:
       - uses: actions/checkout@v2
-      - run: cd ./push-service
       - name: Create out of source build directory
         run: mkdir build && cd build
       - name: Generate project Makefile buildsystem
@@ -20,9 +22,11 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./push-service
     steps:
       - uses: actions/checkout@v2
-      - run: cd ./push-service
       - name: Create out of source build directory
         run: mkdir build && cd build
       - name: Generate project Makefile buildsystem
