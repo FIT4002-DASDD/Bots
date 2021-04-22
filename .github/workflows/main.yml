@@ -28,10 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create out of source build directory
-        run: mkdir build && cd build
+        run: pwd && mkdir build
       - name: Generate project Makefile buildsystem
-        run: cmake ..
+        run: pwd && cd build && cmake ..
       - name: Building
-        run: make
+        run: pwd && cd build && make
       - name: Run unit test executable in bin directory
-        run: cd ../bin && ./testlib
+        run: pwd && cd bin && ./testlib
