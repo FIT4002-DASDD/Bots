@@ -56,8 +56,8 @@ Resources:
   DASDDAdImages:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: PublicRead
-    DeletionPolicy: Retain
+      AccessControl: Private  # Todo: flip to "PublicRead"
+    DeletionPolicy: Delete  # Todo: flip to "Retain"
 
   DASDDAdDB:
     Type: AWS::RDS::DBInstance
@@ -70,5 +70,6 @@ Resources:
       EngineVersion: 12.6
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
-      MonitoringInterval: '60'
-      MonitoringRoleArn: 'arn:aws:iam::123456789012:role/rds-monitoring-role'
+    DeletionPolicy: Delete  # Todo: flip to "Snapshot"
+#      MonitoringInterval: '60' # Optional
+#      MonitoringRoleArn: 'arn:aws:iam::123456789012:role/rds-monitoring-role'  # Optional

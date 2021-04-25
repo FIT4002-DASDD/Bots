@@ -1,5 +1,4 @@
-aws cloudformation create-stack --stack-name DASDD-core-stack --template-body file:///home/akshay/Desktop/Uni/FIT4002
-/FIT4002-DASDD-Bots/aws/cf/core-stack.yaml --profile educate --region us-east-1 --parameters ParameterKey=DBUsername,ParameterValue=postgres ParameterKey=DBPassword,ParameterValue=postgres
+aws cloudformation create-stack --stack-name DASDD-core-stack --template-body file:///home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/aws/cf/core-stack.yaml --profile educate --region us-east-1 --parameters ParameterKey=DBUsername,ParameterValue=postgres ParameterKey=DBPassword,ParameterValue=postgres
 
 
 Relevant links:
