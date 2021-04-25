@@ -53,13 +53,23 @@ Parameters:
     AllowedPattern: '[a-zA-Z0-9]*'
     ConstraintDescription: must contain only alphanumeric characters.
 Resources:
-  DASDDAdImages:
+  DASDDAdDBSecurityGroup:  # VPC Security Group to allow connections to the db instance
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open DASDD db for access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '5432'
+          ToPort: '5432'
+          CidrIp: '0.0.0.0/0'  # Todo: possibly refine?
+
+  DASDDAdImages:  # S3 Bucket for storing ad thumbnails and images
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private  # Todo: flip to "PublicRead"
     DeletionPolicy: Delete  # Todo: flip to "Retain"
 
-  DASDDAdDB:
+  DASDDAdDB:  # RDS Postgres instance for storing bot and ad data
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Ref DBInstanceID
@@ -70,6 +80,7 @@ Resources:
       EngineVersion: 12.6
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
+      VPCSecurityGroups: [!GetAtt DASDDAdDBSecurityGroup.GroupId]
     DeletionPolicy: Delete  # Todo: flip to "Snapshot"
 #      MonitoringInterval: '60' # Optional
 #      MonitoringRoleArn: 'arn:aws:iam::123456789012:role/rds-monitoring-role'  # Optional
