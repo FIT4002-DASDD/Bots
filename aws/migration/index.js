@@ -78,7 +78,7 @@ for (const row of mockDb) {
                     }
 
                     const newHtmlPath = data.Location;
-                    mockDb[mockDb.indexOf(row)][0] = newHtmlPath;
+                    mockDb[mockDb.indexOf(row)][1] = newHtmlPath;
 
                     fs.unlinkSync(`./out/${htmlResourcePath}`);
                 });
