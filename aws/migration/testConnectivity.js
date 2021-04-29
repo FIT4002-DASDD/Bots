@@ -5,7 +5,7 @@ require('dotenv').config();
 const REGION = "us-east-1";
 process.env.AWS_PROFILE = "educate";
 
-const bucketName = "dasdd-bot-images";
+const bucketName = "dasdd-core-stack-dasddadimages-qdzmhix51zg8";
 const bucketParams = {Bucket: bucketName};
 const keyName = "hello_world.txt";
 const objectParams = {Bucket: bucketName, Key: keyName, Body: "Hello World!"};
@@ -15,7 +15,7 @@ const s3 = new S3Client({region: REGION});
 const run = async () => {
     try {
         const data = await s3.send(new CreateBucketCommand(bucketParams));
-        console.log('Success. Bucker created.', data);
+        console.log('Success. Bucket created.', data);
     } catch (err) {
         console.error(err);
     }
