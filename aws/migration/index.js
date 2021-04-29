@@ -27,7 +27,7 @@ let ads = [];
     ads.push(adProcessed);
   });
 
-  console.log(ads);
+  ads = ads.slice(0, 5);  // take small sample for testing
   // For each tuple, download the images and html from the old S3 buckets and re-upload to our new S3 bucket
   for (const row of ads) {
     const [imageUrl, htmlUrl] = row;
@@ -35,9 +35,9 @@ let ads = [];
     if (imageUrl) {
       const imageResourcePath = new URL(imageUrl).pathname.slice(1);
 
-      await axios.get(imageUrl, (res) => {
+      const {data} = await axios.get(imageUrl, {responseType: 'stream'});
         const file = fs.createWriteStream(`./out/${imageResourcePath}`);
-        res.pipe(file);
+        data.pipe(file);
         file.on("finish", async () => {
           file.close();
 
@@ -61,15 +61,14 @@ let ads = [];
             })
             .promise();
         });
-      });
     }
 
     if (htmlUrl && isValidUrl(htmlUrl)) {
       const htmlResourcePath = new URL(htmlUrl).pathname.slice(1);
 
-      await axios.get(htmlUrl, (res) => {
+      const {data} = await axios.get(htmlUrl);
         const file = fs.createWriteStream(`./out/${htmlResourcePath}`);
-        res.pipe(file);
+        data.pipe(file);
         file.on("finish", async () => {
           file.close();
 
@@ -92,7 +91,6 @@ let ads = [];
             })
             .promise();
         });
-      });
     }
   }
 })();
