@@ -10,7 +10,14 @@ const bucketParams = {Bucket: bucketName};
 const keyName = "hello_world.txt";
 const objectParams = {Bucket: bucketName, Key: keyName, Body: "Hello World!"};
 
-const s3 = new S3Client({region: REGION});
+const s3 = new S3Client({
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        sessionToken: process.env.AWS_SESSION_TOKEN
+    },
+    region: REGION
+});
 
 const run = async () => {
     try {
