@@ -5,6 +5,7 @@ const fs = require("fs");
 const https = require("https");
 const axios = require("axios");
 const csv = require("csvtojson");
+const { Parser } = require("json2csv");
 const s3 = require("./clients/s3-client-config");
 const isValidUrl = require("./helpers/url-validator");
 
@@ -19,7 +20,8 @@ if (!fs.existsSync(tmpDir)) {
 
 let ads = [];
 (async () => {
-  const adsJson = await csv().fromFile("./ads_postgres.csv");
+  //convert csv into JSON
+  let adsJson = await csv().fromFile("PATH_TO_CSV");
   adsJson.forEach((ad) => {
     let adProcessed = [];
     adProcessed.push(ad.image !== "" ? ad.image : null);
@@ -27,7 +29,7 @@ let ads = [];
     ads.push(adProcessed);
   });
 
-  ads = ads.slice(0, 5);  // take small sample for testing
+  /*   ads = ads.slice(0, 200); // take small sample for testing */
   // For each tuple, download the images and html from the old S3 buckets and re-upload to our new S3 bucket
   for (const row of ads) {
     const [imageUrl, htmlUrl] = row;
@@ -35,79 +37,108 @@ let ads = [];
     if (imageUrl) {
       const imageResourcePath = new URL(imageUrl).pathname.slice(1);
 
-      const {data} = await axios.get(imageUrl, {responseType: 'stream'});
-        const file = fs.createWriteStream(`./out/${imageResourcePath}`);
-        data.pipe(file);
-        file.on("finish", async () => {
-          file.close();
+      const { data } = await axios.get(imageUrl, { responseType: "stream" });
 
-          const newImageParams = {
-            Key: imageResourcePath,
-            Bucket: NEW_BUCKET_NAME,
-            Body: fs.readFileSync(`./out/${imageResourcePath}`),
-          };
-          await s3
-            .upload(newImageParams, (err, data) => {
-              if (err) {
-                console.error(err.message);
-                throw err;
-              }
+      const file = fs.createWriteStream(`./out/${imageResourcePath}`);
+      data.pipe(file);
+      file.on("finish", async () => {
+        file.close();
 
-              const newImagePath = data.Location;
-              // Update the image path in the db
-              mockDb[mockDb.indexOf(row)][0] = newImagePath;
+        const newImageParams = {
+          Key: imageResourcePath,
+          Bucket: NEW_BUCKET_NAME,
+          Body: fs.readFileSync(`./out/${imageResourcePath}`),
+        };
+        s3.upload(newImageParams, (err, data) => {
+          if (err) {
+            console.error(err.message);
+            throw err;
+          }
 
-              fs.unlinkSync(`./out/${imageResourcePath}`); // unlink temporarily downloaded asset
-            })
-            .promise();
+          const newImagePath = data.Location;
+          // Update the image path in the db
+          ads[ads.indexOf(row)][0] = newImagePath;
+
+          fs.unlinkSync(`./out/${imageResourcePath}`); // unlink temporarily downloaded asset
         });
+      });
     }
 
     if (htmlUrl && isValidUrl(htmlUrl)) {
       const htmlResourcePath = new URL(htmlUrl).pathname.slice(1);
 
-      const {data} = await axios.get(htmlUrl);
-        const file = fs.createWriteStream(`./out/${htmlResourcePath}`);
-        data.pipe(file);
-        file.on("finish", async () => {
-          file.close();
+      const { data } = await axios.get(htmlUrl, { responseType: "stream" });
 
-          const newHtmlParams = {
-            Key: htmlResourcePath,
-            Bucket: NEW_BUCKET_NAME,
-            Body: fs.readFileSync(`./out/${htmlResourcePath}`),
-          };
-          await s3
-            .upload(newHtmlParams, (err, data) => {
-              if (err) {
-                console.error(err.message);
-                throw err;
-              }
+      const file = fs.createWriteStream(`./out/${htmlResourcePath}`);
+      data.pipe(file);
+      file.on("finish", async () => {
+        file.close();
 
-              const newHtmlPath = data.Location;
-              mockDb[mockDb.indexOf(row)][1] = newHtmlPath;
+        const newHtmlParams = {
+          Key: htmlResourcePath,
+          Bucket: NEW_BUCKET_NAME,
+          Body: fs.readFileSync(`./out/${htmlResourcePath}`),
+        };
+        s3.upload(newHtmlParams, (err, data) => {
+          if (err) {
+            console.error(err.message);
+            throw err;
+          }
 
-              fs.unlinkSync(`./out/${htmlResourcePath}`);
-            })
-            .promise();
+          const newHtmlPath = data.Location;
+
+          ads[ads.indexOf(row)][1] = newHtmlPath;
+
+          fs.unlinkSync(`./out/${htmlResourcePath}`);
         });
+      });
     }
+  }
+
+  //Replace old csv(still in JSON format) entries with updated image and html links
+  adsJson.forEach((row, index) => {
+    row.image = ads[index][0];
+    row.html = ads[index][1];
+  }, adsJson);
+
+  //convert JSON back into csv
+  const fields = [
+    "id",
+    "botId",
+    "createdAt",
+    "image",
+    "headline",
+    "html",
+    "adLink",
+    "loggedIn",
+    "seenOn",
+  ];
+  const opts = { fields };
+  try {
+    const parser = new Parser(opts);
+    const adsCsv = parser.parse(adsJson);
+    fs.writeFile("SAVE_PATH_FOR_NEW_CSV", adsCsv, (err) => {
+      if (err) throw err;
+      console.log("The file has been saved!");
+    });
+  } catch (err) {
+    console.error(err);
   }
 })();
 
 /* let mockDb = [
-  [
-    "https://fit4002.s3.ap-southeast-2.amazonaws.com/1602622580639_ad.png",
-    "innerHTML",
-  ], // scheme: image, html
-  [
-    null,
-    "https://fit4002.s3.ap-southeast-2.amazonaws.com/html/1605715433450.html",
-  ],
-  [null, "innerHTML"],
-  [
-    "https://fit4002.s3.ap-southeast-2.amazonaws.com/1602435965483_ad.png",
-    "innerHTML",
-  ],
-  
-]; */
+   [
+     "https://fit4002.s3.ap-southeast-2.amazonaws.com/1602622580639_ad.png",
+     "innerHTML",
+   ], // scheme: image, html
+   [
+     null,
+     "https://fit4002.s3.ap-southeast-2.amazonaws.com/html/1605715433450.html",
+   ],
+   [null, "innerHTML"],
+   [
+     "https://fit4002.s3.ap-southeast-2.amazonaws.com/1602435965483_ad.png",
+     "innerHTML",
+   ],
+   
+ ]; */
