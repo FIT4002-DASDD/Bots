@@ -1,0 +1,16 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@bot_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "app",
+    srcs = [
+        "app.py",
+    ],
+    data = ["//webdrivers:cdriver"],
+    deps = [
+        "//bot/stages",
+        requirement("absl-py"),
+        requirement("schedule"),
+        requirement("selenium"),
+    ],
+)

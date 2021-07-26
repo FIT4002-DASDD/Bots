@@ -1,37 +1,54 @@
 name: DASDD Bots CI
 
-on: [push, pull_request, workflow_dispatch]
+on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
-  build:
-    name: Build Push Service
+  build_bots:
+    name: Build Python Bots
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./push-service
     steps:
       - uses: actions/checkout@v2
-      - name: Create out of source build directory
-        run: pwd && mkdir build
-      - name: Generate project Makefile buildsystem
-        run: pwd && cd build && cmake ..
-      - name: Building
-        run: pwd && cd build && make
-  test:
-    name: Test Push Service
-    needs:
-      - build
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Building bots
+        run: bazel build //bot:all
+
+  test_bots:
+    name: Test Python Bots
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./push-service
     steps:
       - uses: actions/checkout@v2
-      - name: Create out of source build directory
-        run: pwd && mkdir build
-      - name: Generate project Makefile buildsystem
-        run: pwd && cd build && cmake ..
-      - name: Building
-        run: pwd && cd build && make
-      - name: Run unit test executable in bin directory
-        run: pwd && cd bin && ./testlib
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Testing bots
+        run: bazel test $(bazel query //bot/...)
+#  build:
+#    name: Build Push Service
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        working-directory: ./push-service
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Create out of source build directory
+#        run: pwd && mkdir build
+#      - name: Generate project Makefile buildsystem
+#        run: pwd && cd build && cmake ..
+#      - name: Building
+#        run: pwd && cd build && make
+#  test:
+#    name: Test Push Service
+#    needs:
+#      - build
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        working-directory: ./push-service
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Create out of source build directory
+#        run: pwd && mkdir build
+#      - name: Generate project Makefile buildsystem
+#        run: pwd && cd build && cmake ..
+#      - name: Building
+#        run: pwd && cd build && make
+#      - name: Run unit test executable in bin directory
+#        run: pwd && cd bin && ./testlib

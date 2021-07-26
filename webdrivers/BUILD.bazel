@@ -1,0 +1,5 @@
+filegroup(
+    name = "cdriver",
+    srcs = ["chromedriver"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,18 @@
+load("@rules_python//python:defs.bzl", "py_library")
+load("@bot_deps//:requirements.bzl", "requirement")
+
+py_library(
+    name = "stages",
+    srcs = glob(["*.py"]),
+    visibility = ["//bot:__pkg__"],
+    deps = [
+        requirement("selenium"),
+        requirement("absl-py"),
+    ],
+)
+
+py_test(
+    name = "login_test",
+    srcs = ["login_test.py"],
+    deps = [":stages"],
+)
