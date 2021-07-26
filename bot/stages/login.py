@@ -1,13 +1,14 @@
 """
 Module for logging into a Twitter account.
 """
+from absl import logging
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from absl import logging
+from bot.stages.scraping_util import wait_for_page_load
 
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
@@ -31,8 +32,11 @@ def _login(driver: Chrome, username: str, password: str) -> bool:
         e_pw.send_keys(password)
         e_pw.send_keys(Keys.RETURN)
 
-        logging.info('Successfully logged in.')
-        return True  # TODO: detect successful login properly
+        if wait_for_page_load(driver):
+            logging.info('Successfully logged in.')
+            return True
+        else:
+            return False
     except Exception as e:
         print(e)
         return False

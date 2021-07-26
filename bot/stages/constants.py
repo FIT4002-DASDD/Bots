@@ -1,3 +1,3 @@
 """
-Stores constants used by the appliation.
+Stores constants used by the application.
 """

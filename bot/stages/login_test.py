@@ -1,8 +1,9 @@
 """
 Testing login functionality.
 """
-from unittest import TestCase, TestLoader, TextTestRunner
-from unittest.mock import MagicMock
+from unittest import TestCase, main
+from unittest.mock import MagicMock, patch
+
 from bot.stages.login import login_or_die
 
 
@@ -39,17 +40,20 @@ class LoginTest(TestCase):
         self.mock_driver = None
 
     def test_login_failure_is_fatal(self):
-        self.mock_driver.side_effect = Exception()
+        self.mock_driver.get.side_effect = Exception()
         login_or_die(self.mock_driver, '', '')
         self.mock_driver.quit.assert_called_once()
 
-    def test_login_success(self):
-        pass
+    @patch('selenium.webdriver.support.ui.WebDriverWait')
+    @patch('selenium.webdriver.support.expected_conditions.visibility_of_element_located')
+    @patch('bot.stages.login.wait_for_page_load')
+    def test_login_success(self, mock_webdriver_wait, mock_ec, mock_page_load_fn):
+        username = 'fakeusername'
+        password = 'fakepassword'
+        mock_page_load_fn.return_value = True
 
-
-def main():
-    suite = TestLoader().loadTestsFromTestCase(LoginTest)
-    TextTestRunner(verbosity=2).run(suite)
+        login_or_die(self.mock_driver, username, password)
+        self.mock_driver.quit.assert_not_called()
 
 
 if __name__ == '__main__':
