@@ -20,22 +20,26 @@ SCREENSHOT_COUNT = 1
 
 
 def get_timeline(driver: Chrome) -> WebElement:
+    """Returns a twitter timeline WebElement."""
     return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
 
 def take_element_screenshot(web_element: WebElement) -> str:
-    _take_screenshot_and_save_to_file(web_element)
+    """
+    Screenshots a given WebElement, returning it as a base-64 string.
+    If running in Debug mode, the PNG file is also saved to the bot's output directory.
+    """
+    if FLAGS.debug:
+        _take_screenshot_and_save_to_file(web_element)
     return web_element.screenshot_as_base64
 
 
-# TODO: fix...
 def _take_screenshot_and_save_to_file(web_element: WebElement):
     global SCREENSHOT_COUNT
-    if FLAGS.debug and FLAGS.screenshot_storage_directory:
-        screenshot_filename = f'${FLAGS.screenshot_storage_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
-        if web_element.screenshot(screenshot_filename):
-            logging.info(f'Successfully captured screenshot: {screenshot_filename}')
-            SCREENSHOT_COUNT += 1
+    screenshot_filename = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
+    if web_element.screenshot(screenshot_filename):
+        logging.info(f'Successfully captured screenshot: {screenshot_filename}')
+        SCREENSHOT_COUNT += 1
 
 
 def wait_for_page_load(driver: Chrome) -> bool:

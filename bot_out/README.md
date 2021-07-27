@@ -1,0 +1,1 @@
+**NOTE**: Do not modify this directory. It will contain bot output, which the push service `cc_binary` depends on.

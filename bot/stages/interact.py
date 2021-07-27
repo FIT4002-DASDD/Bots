@@ -1,17 +1,16 @@
 """
 Module for defining the bot twitter interaction flow.
 """
+import proto.ad_pb2 as ad_pb2
+import proto.bot_pb2 as bot_pb2
 from selenium.webdriver import Chrome
 
-from bot.stages.scraping_util import get_timeline
-from bot.stages.scraping_util import take_element_screenshot
-from bot.stages.scraping_util import load_more_tweets
-from bot.stages.scraping_util import search_promoted_tweet_in_timeline
-from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import get_promoted_author
-
-import proto.bot_pb2 as bot_pb2
-import proto.ad_pb2 as ad_pb2
+from bot.stages.scraping_util import get_timeline
+from bot.stages.scraping_util import load_more_tweets
+from bot.stages.scraping_util import refresh_page
+from bot.stages.scraping_util import search_promoted_tweet_in_timeline
+from bot.stages.scraping_util import take_element_screenshot
 
 # This is just an aim - there is no guarantee this target will be met.
 TARGET_AD_COUNT = 5
@@ -49,5 +48,3 @@ def _scrape(driver: Chrome, bot_username: str):
                 refresh_page(driver)
 
         target -= 1
-
-    print(ad_collection)

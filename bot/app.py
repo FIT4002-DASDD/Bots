@@ -17,14 +17,13 @@ FLAGS = flags.FLAGS
 flags.DEFINE_bool('debug', True, 'Whether to run in debug mode.')
 flags.DEFINE_string('bot_username', None, 'Pass in bot username (required)')
 flags.DEFINE_string('bot_password', None, 'Pass in bot password (required)')
-flags.DEFINE_string('screenshot_storage_directory', None,
-                    'Pass in directory for viewing captured screenshots - for debugging purposes only.')
+flags.DEFINE_string('bot_output_directory', None, 'Pass in directory for storing bot output (required)')
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
 flags.register_validator('bot_password', lambda pw: pw and len(pw) > 0, message='Invalid password detected.')
 
-flags.mark_flags_as_required(['bot_username', 'bot_password'])
+flags.mark_flags_as_required(['bot_username', 'bot_password', 'bot_output_directory'])
 
 
 def main(argv):
@@ -54,9 +53,10 @@ def _main():
         interact(driver, FLAGS.bot_username)
         # Cleanup.
         driver.quit()
-        logging.info('----------Cycle ended----------')
     except Exception as e:  # Any exception raised will skip this cycle.
         logging.error(e)
+    finally:
+        logging.info('----------Cycle ended----------')
 
 
 if __name__ == '__main__':
