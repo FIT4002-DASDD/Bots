@@ -41,8 +41,9 @@ class LoginTest(TestCase):
 
     def test_login_failure_quits_webdriver(self):
         self.mock_driver.get.side_effect = Exception()
-        login_or_die(self.mock_driver, '', '')
-        self.mock_driver.quit.assert_called_once()
+        with self.assertRaises(Exception):
+            login_or_die(self.mock_driver, '', '')
+            self.mock_driver.quit.assert_called_once()
 
     @patch('selenium.webdriver.support.ui.WebDriverWait')
     @patch('selenium.webdriver.support.expected_conditions.visibility_of_element_located')
