@@ -1,8 +1,13 @@
 """
 Module for defining the bot twitter interaction flow.
 """
+
+from datetime import date, timedelta
+
 import proto.ad_pb2 as ad_pb2
 import proto.bot_pb2 as bot_pb2
+from absl import flags
+from absl import logging
 from selenium.webdriver import Chrome
 
 from bot.stages.scraping_util import get_promoted_author
@@ -12,8 +17,16 @@ from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 
+FLAGS = flags.FLAGS
+
 # This is just an aim - there is no guarantee this target will be met.
 TARGET_AD_COUNT = 5
+
+# Buffers ads until they need to be written out.
+ad_collection = ad_pb2.AdCollection()
+
+# Tracks when the AdCollection was last written out.
+LAST_WRITTEN_OUT = date.today() - timedelta(days=1)  # Subtract one day so we write out on the first invocation.
 
 
 def interact(driver: Chrome, bot_username: str):
@@ -26,8 +39,8 @@ def interact(driver: Chrome, bot_username: str):
 
 
 def _scrape(driver: Chrome, bot_username: str):
+    """Scrapes the bot's timeline for Promoted tweets"""
     target = TARGET_AD_COUNT
-    ad_collection = ad_pb2.AdCollection()
     while target > 0:
         timeline = get_timeline(driver)
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
@@ -48,3 +61,32 @@ def _scrape(driver: Chrome, bot_username: str):
                 refresh_page(driver)
 
         target -= 1
+
+    if _should_flush_ad_collection():
+        logging.info('Writing out AdCollection as one day has elapsed.')
+        _write_out_ad_collection()
+
+
+def _should_flush_ad_collection() -> bool:
+    """
+    Whether the ads stored in the AdCollection need to be written out.
+    Ads will be flushed ONCE a DAY.
+    """
+    date_today = date.today()
+    return date_today > LAST_WRITTEN_OUT
+
+
+def _write_out_ad_collection():
+    """Serializes the AdCollection proto and writes it out to a binary file."""
+    global LAST_WRITTEN_OUT
+    # Update when the collection was last written out.
+    LAST_WRITTEN_OUT = date.today()
+
+    # Path to the binary file containing the serialized protos for this bot.
+    location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out'
+    with open(location, 'wb') as f:
+        f.write(ad_collection.SerializeToString())
+        logging.info(f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
+
+    # Clear the ads.
+    ad_collection.Clear()

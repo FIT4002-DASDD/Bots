@@ -39,7 +39,7 @@ STAGE_WAIT_DELAY = 5
 
 
 # Bot flow should run periodically.
-@repeat(every().hour)
+@repeat(every().minute)
 def _main():
     logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
 
