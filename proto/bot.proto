@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package dasdd.proto;
+
+message Bot {
+  // This should be the bot's username
+  string id = 1;
+}

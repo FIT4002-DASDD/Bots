@@ -42,7 +42,7 @@ STAGE_WAIT_DELAY = 5
 # Bot flow should run periodically.
 @repeat(every().hour)
 def _main():
-    logging.info(f'Started bot: {FLAGS.bot_username}')
+    logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
 
     try:
         # Create the driver.
@@ -51,9 +51,10 @@ def _main():
         login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
         # Interact and Scrape.
         time.sleep(STAGE_WAIT_DELAY)
-        interact(driver)
+        interact(driver, FLAGS.bot_username)
         # Cleanup.
         driver.quit()
+        logging.info('----------Cycle ended----------')
     except Exception as e:  # Any exception raised will skip this cycle.
         logging.error(e)
 

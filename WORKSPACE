@@ -1,15 +1,16 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# ***** START PYTHON *****
 http_archive(
     name = "rules_python",
     sha256 = "934c9ceb552e84577b0faf1e5a2f0450314985b4d8712b2b70717dc679fdc01b",
     url = "https://github.com/bazelbuild/rules_python/releases/download/0.3.0/rules_python-0.3.0.tar.gz",
 )
 
-
 # NOTE: I had to use pip_parse rather than pip_install (pycharm not recognizing imports)
 # https://github.com/bazelbuild/intellij/pull/2528
 load("@rules_python//python:pip.bzl", "pip_parse")
+
 # Create a central repo that knows about the dependencies needed from
 # requirements_lock.txt.
 pip_parse(
@@ -22,8 +23,50 @@ load("@bot_deps//:requirements.bzl", "install_deps")
 
 # Call it to define repos for your requirements.
 install_deps()
+# ***** END PYTHON *****
 
-# CC stuff
+# ***** START PROTO *****
+http_archive(
+    name = "rules_proto",
+    sha256 = "d8992e6eeec276d49f1d4e63cfa05bbed6d4a26cfe6ca63c972827a0d141ea3b",
+    strip_prefix = "rules_proto-cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2.tar.gz",
+    ],
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+http_archive(
+    name = "build_stack_rules_proto",
+    strip_prefix = "rules_proto-b2913e6340bcbffb46793045ecac928dcf1b34a5",
+    urls = ["https://github.com/stackb/rules_proto/archive/b2913e6340bcbffb46793045ecac928dcf1b34a5.tar.gz"],
+)
+
+load("@build_stack_rules_proto//python:deps.bzl", "python_proto_library")
+
+python_proto_library()
+
+load("@io_bazel_rules_python//python:pip.bzl", "pip_import", "pip_repositories")
+
+pip_repositories()
+
+pip_import(
+    name = "protobuf_py_deps",
+    requirements = "@build_stack_rules_proto//python/requirements:protobuf.txt",
+)
+
+load("@protobuf_py_deps//:requirements.bzl", protobuf_pip_install = "pip_install")
+
+protobuf_pip_install()
+# ***** END PROTO *****
+
+# ***** START CC *****
 http_archive(
     name = "com_google_absl",
     sha256 = "1a7edda1ff56967e33bc938a4f0a68bb9efc6ba73d62bb4a5f5662463698056c",
@@ -58,19 +101,4 @@ http_archive(
     strip_prefix = "googletest-609281088cfefc76f9d0ce82e1ff6c30cc3591e5",
     urls = ["https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"],
 )
-
-http_archive(
-    name = "rules_proto",
-    sha256 = "d8992e6eeec276d49f1d4e63cfa05bbed6d4a26cfe6ca63c972827a0d141ea3b",
-    strip_prefix = "rules_proto-cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2.tar.gz",
-        "https://github.com/bazelbuild/rules_proto/archive/cfdc2fa31879c0aebe31ce7702b1a9c8a4be02d2.tar.gz",
-    ],
-)
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()
+# ***** END CC *****
