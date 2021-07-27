@@ -6,11 +6,19 @@ py_binary(
     srcs = [
         "app.py",
     ],
-    data = ["//webdrivers:cdriver"],
+    data = [
+        "//webdrivers:cdriver",
+    ],
     deps = [
         "//bot/stages",
         requirement("absl-py"),
         requirement("schedule"),
         requirement("selenium"),
     ],
+)
+
+py_library(
+    name = "constants",
+    srcs = ["constants.py"],
+    visibility = ["//bot:__subpackages__"],
 )

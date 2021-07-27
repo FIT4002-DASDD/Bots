@@ -17,7 +17,7 @@ LOGIN_WAIT = 10
 def login_or_die(driver: Chrome, username: str, password: str):
     if not _login(driver, username, password):
         driver.quit()
-        logging.fatal('FAILURE. Log in was not successful.')
+        raise Exception('FAILURE. Log in was not successful.')
 
 
 def _login(driver: Chrome, username: str, password: str) -> bool:

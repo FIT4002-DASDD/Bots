@@ -1,6 +1,7 @@
 """
 Contains utilities to help with scraping.
 """
+
 from absl import flags
 from absl import logging
 from selenium.webdriver import Chrome
@@ -14,11 +15,24 @@ FLAGS = flags.FLAGS
 SCREENSHOT_COUNT = 1
 
 
-def take_element_screenshot(web_element: WebElement) -> str:
-    if FLAGS.debug:
-        web_element.screenshot(f'bot_out/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png')
+def get_timeline(driver: Chrome) -> WebElement:
+    driver.save_screenshot(f'${FLAGS.screenshot_storage_directory}/t.png')
+    return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
-    return web_element.screenshot_as_base64()
+
+def take_element_screenshot(web_element: WebElement) -> str:
+    _take_screenshot_and_save_to_file(web_element)
+    return web_element.screenshot_as_base64
+
+
+# TODO: fix...
+def _take_screenshot_and_save_to_file(web_element: WebElement):
+    global SCREENSHOT_COUNT
+    if FLAGS.debug and FLAGS.screenshot_storage_directory:
+        screenshot_filename = f'${FLAGS.screenshot_storage_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
+        if web_element.screenshot(screenshot_filename):
+            logging.info(f'Successfully captured screenshot: {screenshot_filename}')
+            SCREENSHOT_COUNT += 1
 
 
 # Credit: https://github.com/kautzz/twitter-problock

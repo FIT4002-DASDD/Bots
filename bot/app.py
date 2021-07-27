@@ -17,6 +17,8 @@ FLAGS = flags.FLAGS
 flags.DEFINE_bool('debug', True, 'Whether to run in debug mode.')
 flags.DEFINE_string('bot_username', None, 'Pass in bot username (required)')
 flags.DEFINE_string('bot_password', None, 'Pass in bot password (required)')
+flags.DEFINE_string('screenshot_storage_directory', None,
+                    'Pass in directory for viewing captured screenshots - for debugging purposes only.')
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
@@ -33,20 +35,27 @@ def main(argv):
         time.sleep(1)
 
 
+# Wait before start of each stage.
+STAGE_WAIT_DELAY = 5
+
+
 # Bot flow should run periodically.
 @repeat(every().hour)
 def _main():
     logging.info(f'Started bot: {FLAGS.bot_username}')
 
-    # Create the driver.
-    driver = create_chromedriver()
-    # Login.
-    login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
-    # Interact and Scrape.
-    time.sleep(5)
-    interact(driver)
-    # Cleanup.
-    driver.quit()
+    try:
+        # Create the driver.
+        driver = create_chromedriver()
+        # Login.
+        login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
+        # Interact and Scrape.
+        time.sleep(STAGE_WAIT_DELAY)
+        interact(driver)
+        # Cleanup.
+        driver.quit()
+    except Exception as e:  # Any exception raised will skip this cycle.
+        logging.error(e)
 
 
 if __name__ == '__main__':

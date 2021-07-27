@@ -39,7 +39,7 @@ class LoginTest(TestCase):
         """
         self.mock_driver = None
 
-    def test_login_failure_is_fatal(self):
+    def test_login_failure_quits_webdriver(self):
         self.mock_driver.get.side_effect = Exception()
         login_or_die(self.mock_driver, '', '')
         self.mock_driver.quit.assert_called_once()
