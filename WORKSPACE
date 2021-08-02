@@ -46,8 +46,9 @@ rules_proto_toolchains()
 # See: https://thethoughtfulkoala.com/posts/2020/05/08/py-protobuf-bazel.html
 git_repository(
     name = "com_google_protobuf",
+    commit = "909a0f36a10075c4b4bc70fdee2c7e32dd612a72",
     remote = "https://github.com/protocolbuffers/protobuf",
-    tag = "v3.17.3",
+    shallow_since = "1622843222 +0000",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
