@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # ***** START PYTHON *****
 http_archive(
@@ -42,28 +43,17 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-http_archive(
-    name = "build_stack_rules_proto",
-    strip_prefix = "rules_proto-b2913e6340bcbffb46793045ecac928dcf1b34a5",
-    urls = ["https://github.com/stackb/rules_proto/archive/b2913e6340bcbffb46793045ecac928dcf1b34a5.tar.gz"],
+# See: https://thethoughtfulkoala.com/posts/2020/05/08/py-protobuf-bazel.html
+git_repository(
+    name = "com_google_protobuf",
+    remote = "https://github.com/protocolbuffers/protobuf",
+    tag = "v3.17.3",
 )
 
-load("@build_stack_rules_proto//python:deps.bzl", "python_proto_library")
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
-python_proto_library()
+protobuf_deps()
 
-load("@io_bazel_rules_python//python:pip.bzl", "pip_import", "pip_repositories")
-
-pip_repositories()
-
-pip_import(
-    name = "protobuf_py_deps",
-    requirements = "@build_stack_rules_proto//python/requirements:protobuf.txt",
-)
-
-load("@protobuf_py_deps//:requirements.bzl", protobuf_pip_install = "pip_install")
-
-protobuf_pip_install()
 # ***** END PROTO *****
 
 # ***** START CC *****
