@@ -22,5 +22,8 @@ py_proto_library(
     name = "ad_py_proto",
     srcs = ["ad.proto"],
     visibility = ["//visibility:public"],
-    deps = [":bot_py_proto"],
+    deps = [
+        ":bot_py_proto",
+        "@com_google_protobuf//:protobuf_python",
+    ],
 )

@@ -54,6 +54,7 @@ def _scrape(driver: Chrome, bot_username: str):
             ad.content = promoted_in_timeline.text
             ad.promoter_handle = get_promoted_author(promoted_in_timeline)
             ad.screenshot = take_element_screenshot(promoted_in_timeline)
+            ad.created_at.GetCurrentTime()  # This sets the field:  https://stackoverflow.com/a/65138505/15507541
 
             refresh_page(driver)
         else:
