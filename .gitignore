@@ -8,3 +8,4 @@ package-lock.json
 *out
 bazel*
 .ijwb
+.clwb

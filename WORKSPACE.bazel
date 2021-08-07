@@ -1,5 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
 # ***** START PYTHON *****
 http_archive(
@@ -91,5 +91,33 @@ http_archive(
     sha256 = "5cf189eb6847b4f8fc603a3ffff3b0771c08eec7dd4bd961bfd45477dd13eb73",
     strip_prefix = "googletest-609281088cfefc76f9d0ce82e1ff6c30cc3591e5",
     urls = ["https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"],
+)
+
+http_archive(
+    name = "rules_foreign_cc",
+    sha256 = "5470b22db8974824a1994593f117b0ef8c2e5fb474fd30a7473fcfd77d8d1ed7",
+    strip_prefix = "rules_foreign_cc-f01fd353ee2adcd55aab899c12fa2733223228a1",
+    url = "https://github.com/bazelbuild/rules_foreign_cc/archive/f01fd353ee2adcd55aab899c12fa2733223228a1.tar.gz",
+)
+
+load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
+
+rules_foreign_cc_dependencies()
+
+_ALL_CONTENT = """\
+filegroup(
+    name = "all_srcs",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+"""
+
+new_git_repository(
+    name = "aws_sdk_cpp",
+    build_file_content = _ALL_CONTENT,
+    commit = "472a4e54cef8039ac7e65560f169cfd848951009",
+    recursive_init_submodules = True,
+    remote = "https://github.com/aws/aws-sdk-cpp",
+    shallow_since = "1628277923 +0000",
 )
 # ***** END CC *****

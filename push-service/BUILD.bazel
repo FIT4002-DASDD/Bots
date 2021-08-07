@@ -1,0 +1,43 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+
+cc_binary(
+    name = "main",
+    srcs = ["main.cc"],
+    deps = [
+        ":aws_sdk_cpp",
+        ":runner",
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/status:statusor",
+    ],
+)
+
+cc_library(
+    name = "runner",
+    srcs = ["runner.cc"],
+    hdrs = ["runner.h"],
+    deps = [
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings:str_format",
+    ],
+)
+
+cmake(
+    name = "aws_sdk_cpp",
+    cache_entries = {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_ONLY": "s3;rds",
+        "BUILD_SHARED_LIBS": "ON",  # Use dynamic libraries (.so) instead of static (.a)
+        "ENABLE_TESTING": "OFF",
+    },
+    install = True,
+    lib_source = "@aws_sdk_cpp//:all_srcs",
+    out_shared_libs = [
+        "libaws-cpp-sdk-core.so",
+        "libaws-cpp-sdk-s3.so",
+        "libaws-cpp-sdk-rds.so",
+    ],
+)

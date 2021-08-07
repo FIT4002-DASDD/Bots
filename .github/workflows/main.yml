@@ -21,6 +21,15 @@ jobs:
       - uses: bazelbuild/setup-bazelisk@v1
       - name: Testing bots
         run: bazel test $(bazel query //bot/...) --test_output=all
+
+  build_push_service:
+    name: Build Push Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Building bots
+        run: bazel build //push-service:all
 #  build:
 #    name: Build Push Service
 #    runs-on: ubuntu-latest
