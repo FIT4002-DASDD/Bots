@@ -25,14 +25,22 @@ Note: for the `--bot_output_directory` flag, please pass in the path to the `bot
 
 ### Bots run example
 
-Call `blaze run`, passing in the flags discussed above:
+Call `bazel run`, passing in the flags discussed above:
 
 `bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out`
 
 
-## Push Service Installation
+## Build Push Service
 
-TBD
+Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in the `--sandbox_writable_path` flag:
+`bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
+
+<div style="padding: 15px; border: 1px solid transparent; border-color: transparent; margin-bottom: 20px; border-radius: 4px; color: #8a6d3b;; background-color: #fcf8e3; border-color: #faebcc;">
+  <b>NOTE: </b> You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this directory will be changed.
+</div>
 
 ## Push Service Usage
-TBD
+
+Call `bazel run` as follows:
+
+`bazel run //push-service:main`
