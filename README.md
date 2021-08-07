@@ -33,6 +33,7 @@ Call `bazel run`, passing in the flags discussed above:
 ## Build Push Service
 
 Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in the `--sandbox_writable_path` flag:
+
 Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
 
 
