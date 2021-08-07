@@ -31,8 +31,8 @@ jobs:
       - name: Installing AWS SDK dependencies
         run: sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
       - run: echo $HOME
-      - name: Building bots
-        run: bazel build //push-service:all --sandbox_writable_path=/$HOME/.cache/bazel/
+      - name: Building bots (--sandbox_writable_path needed because AWS SDK's CMake rules modify the Bazel sandbox)
+        run: bazel build //push-service:all --sandbox_writable_path=/home/runner/.cache/bazel/
 #  build:
 #    name: Build Push Service
 #    runs-on: ubuntu-latest
