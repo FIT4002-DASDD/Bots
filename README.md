@@ -33,11 +33,11 @@ Call `bazel run`, passing in the flags discussed above:
 ## Build Push Service
 
 Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in the `--sandbox_writable_path` flag:
-`bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
+Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
 
-<div style="padding: 15px; border: 1px solid transparent; border-color: transparent; margin-bottom: 20px; border-radius: 4px; color: #8a6d3b;; background-color: #fcf8e3; border-color: #faebcc;">
-  <b>NOTE: </b> You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this directory will be changed.
-</div>
+
+| :exclamation:    **NOTE:** You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this directory will be changed.   |
+|-----------------------------------------|
 
 ## Push Service Usage
 
