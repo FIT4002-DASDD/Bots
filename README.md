@@ -32,6 +32,10 @@ Call `bazel run`, passing in the flags discussed above:
 
 ## Build Push Service
 
+First install the AWS C++ SDK's dependencies by following the [official docs](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/setup-linux.html):
+
+`sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`
+
 Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in the `--sandbox_writable_path` flag:
 
 Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
