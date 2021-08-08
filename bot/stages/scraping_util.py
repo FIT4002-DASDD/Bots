@@ -18,7 +18,6 @@ FLAGS = flags.FLAGS
 
 SCREENSHOT_COUNT = 1
 
-
 def get_timeline(driver: Chrome) -> WebElement:
     """Returns a twitter timeline WebElement."""
     return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
@@ -46,7 +45,7 @@ def wait_for_page_load(driver: Chrome) -> bool:
     logging.info('Waiting for page load...')
 
     try:
-        WebDriverWait(driver, 2).until(EC.visibility_of_element_located(
+        WebDriverWait(driver, 1).until(EC.visibility_of_element_located(
             (By.XPATH, "//div[@role='progressbar']/following::div[contains(@style, '26px')]")))
     except Exception as e:
         print(e)

@@ -10,12 +10,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.stages.scraping_util import wait_for_page_load
 
+import uuid
+import os
+
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
-
+# NEED TO CHANGE THE PATH FOR THE EC2 INSTANCE
+ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
 
 def login_or_die(driver: Chrome, username: str, password: str):
     if not _login(driver, username, password):
+        filename = str(uuid.uuid4())
+        file_ = open(os.path.dirname(ERROR_LOGGING_PATH) + '/' + filename + '.html', 'w')
+        file_.write(driver.page_source)
+        file_.close()
         driver.quit()
         raise Exception('FAILURE. Log in was not successful.')
 
