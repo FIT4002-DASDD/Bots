@@ -12,11 +12,16 @@ from bot.stages.scraping_util import wait_for_page_load
 
 import uuid
 import os
+import time
 
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
+
 # NEED TO CHANGE THE PATH FOR THE EC2 INSTANCE
 ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
+
+VERIFICATION_WAIT = 3
+ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 def login_or_die(driver: Chrome, username: str, password: str):
     if not _login(driver, username, password):
@@ -26,7 +31,6 @@ def login_or_die(driver: Chrome, username: str, password: str):
         file_.close()
         driver.quit()
         raise Exception('FAILURE. Log in was not successful.')
-
 
 def _login(driver: Chrome, username: str, password: str) -> bool:
     try:
@@ -40,6 +44,10 @@ def _login(driver: Chrome, username: str, password: str) -> bool:
         e_pw.send_keys(password)
         e_pw.send_keys(Keys.RETURN)
 
+        # Pass phone number in for verification
+        time.sleep(VERIFICATION_WAIT)
+        verify_phone_number(driver)
+
         if wait_for_page_load(driver):
             logging.info('Successfully logged in.')
             return True
@@ -48,3 +56,21 @@ def _login(driver: Chrome, username: str, password: str) -> bool:
     except Exception as e:
         print(e)
         return False
+
+# Function to key in phone number when phone number verification
+def verify_phone_number(driver: Chrome):
+    try:
+        # to ensure that the verification required is phone number verification
+        hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
+        
+        # find the element to fill the phone number detail
+        phone_number = driver.find_element_by_name('challenge_response')
+
+        # fill in the element with phone number 
+        phone_number.send_keys(ACCOUNT_PHONE_NUMBER)
+
+        # hit enter
+        phone_number.send_keys(Keys.RETURN)
+
+    except Exception as e:
+        logging.info('[UNSURE] No phone number verification needed.')

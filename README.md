@@ -25,9 +25,12 @@ Note: for the `--bot_output_directory` flag, please pass in the path to the `bot
 
 ### Bots run example
 
-Call `blaze run`, passing in the flags discussed above:
+Call `bazel run`, passing in the flags discussed above (command for both bots are shown below). Change the bot_output_directory to the path on your machine:
 
 `bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out`
+
+`bazel run //bot:app -- --bot_username=ElizaHahns --bot_password=AKJHD97434%^% --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out`
+
 
 
 ## Push Service Installation

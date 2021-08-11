@@ -9,8 +9,8 @@ from absl import flags
 from absl import logging
 
 from bot.stages.config import create_chromedriver
-from bot.stages.login import login_or_die
-from bot.stages.interact import interact
+from bot.stages.login import login_or_die, verify_phone_number
+from bot.stages.interact import interact, agree_to_policy_updates
 
 FLAGS = flags.FLAGS
 
@@ -36,7 +36,7 @@ def main(argv):
 
 # Wait before start of each stage.
 STAGE_WAIT_DELAY = 5
-
+SHORT_WAIT = 3
 
 # Bot flow should run periodically.
 @repeat(every().hour)
@@ -46,13 +46,21 @@ def _main():
     try:
         # Create the driver.
         driver = create_chromedriver()
+
         # Login.
         login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
+
+        # Wait to click on 'Ok' for policy updates
+        time.sleep(SHORT_WAIT)
+        agree_to_policy_updates(driver)
+
         # Interact and Scrape.
         time.sleep(STAGE_WAIT_DELAY)
         interact(driver, FLAGS.bot_username)
+
         # Cleanup.
         driver.quit()
+
     except Exception as e:  # Any exception raised will skip this cycle.
         logging.error(e)
     finally:

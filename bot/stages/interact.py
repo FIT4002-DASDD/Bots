@@ -37,6 +37,13 @@ def interact(driver: Chrome, bot_username: str):
     """
     _scrape(driver, bot_username)
 
+# Function to click 'Ok' on the policy update pop-up
+def agree_to_policy_updates(driver: Chrome):
+    try:
+        dialog = driver.find_element_by_xpath("//div[@role='dialog']")
+        dialog.find_element_by_xpath(".//div[@role='button']").click()
+    except Exception as e:
+        logging.info("[UNSURE] No policy update pop-up.")
 
 def _scrape(driver: Chrome, bot_username: str):
     """Scrapes the bot's timeline for Promoted tweets"""
