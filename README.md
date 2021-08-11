@@ -25,14 +25,41 @@ Note: for the `--bot_output_directory` flag, please pass in the path to the `bot
 
 ### Bots run example
 
-Call `blaze run`, passing in the flags discussed above:
+Call `bazel run`, passing in the flags discussed above:
 
 `bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out`
 
 
-## Push Service Installation
+## Build Push Service
 
-TBD
+First install the AWS C++ SDK's dependencies by following the [official docs](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/setup-linux.html):
+
+`sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`
+
+Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in the `--sandbox_writable_path` flag:
+
+Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
+
+
+| :exclamation:    **NOTE:** You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this directory will be changed.   |
+|-----------------------------------------|
+
+
+### Building the AWS C++ SDK From Source
+
+If you encounter problems during the SDK build via Bazel, you can attempt to build it from source (not recommended) and comment-out the appropriate AWS rules in the Bazel package.
+
+By following the rules in the the [official docs](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/setup-linux.html) and the [Git repo](https://github.com/aws/aws-sdk-cpp), execute the following:
+
+1. Install dependencies: `sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`
+2. Recursively clone the repo: `git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp`
+3. Create an out-of-source build directory: `mkdir build`
+4. Run: `cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="s3;rds" -DBUILD_SHARED_LIBS=ON -DENABLE_TESTING=OFF`
+5. Run: `make && make install`
+
 
 ## Push Service Usage
-TBD
+
+Call `bazel run` as follows:
+
+`bazel run //push-service:main`
