@@ -1,7 +1,0 @@
-aws cloudformation create-stack --stack-name DASDD-core-stack --template-body file:///home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/aws/cf/core-stack.yaml --profile educate --region us-east-1 --parameters ParameterKey=DBUsername,ParameterValue=postgres ParameterKey=DBPassword,ParameterValue=postgres
-
-
-Relevant links:
-- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html#aws-properties-rds-database-instance--examples
-- https://docs.aws.amazon.com/cli/latest/reference/cloudformation/create-stack.html
-- https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/RDS/RDS_MySQL_With_Read_Replica.yaml
