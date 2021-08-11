@@ -71,6 +71,6 @@ def verify_phone_number(driver: Chrome):
 
         # hit enter
         phone_number.send_keys(Keys.RETURN)
-
+        logging.info('Keyed in phone number for verification.')
     except Exception as e:
         logging.info('[UNSURE] No phone number verification needed.')

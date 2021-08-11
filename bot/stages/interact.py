@@ -98,3 +98,6 @@ def _write_out_ad_collection():
 
     # Clear the ads.
     ad_collection.Clear()
+
+def like_post(driver: Chrome):
+    # driver.find_element_by_xpath('//div[aria-label*="Likes. Like"]')

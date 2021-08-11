@@ -50,7 +50,6 @@ def wait_for_page_load(driver: Chrome) -> bool:
     except Exception as e:
         print(e)
         logging.error('Could not trigger loading of new content.')
-        return False
 
     try:
         WebDriverWait(driver, 7).until(EC.invisibility_of_element_located(
