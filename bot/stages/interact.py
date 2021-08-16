@@ -17,6 +17,8 @@ from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 
+import time
+
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
@@ -35,7 +37,8 @@ def interact(driver: Chrome, bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    _scrape(driver, bot_username)
+    # _scrape(driver, bot_username)
+    like_post(driver)
 
 # Function to click 'Ok' on the policy update pop-up
 def agree_to_policy_updates(driver: Chrome):
@@ -100,4 +103,11 @@ def _write_out_ad_collection():
     ad_collection.Clear()
 
 def like_post(driver: Chrome):
-    # driver.find_element_by_xpath('//div[aria-label*="Likes. Like"]')
+    test = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
+    test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
+    print(test1.click())
+
+    time.sleep(30)
+    # target = TARGET_AD_COUNT
+    # while target > 0:
+    #     timeline = get_timeline(driver)
