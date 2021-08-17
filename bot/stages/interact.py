@@ -16,13 +16,15 @@ from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
-
+from bot.stages.bot_info import bots
 import time
 
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
 TARGET_AD_COUNT = 5
+
+TARGET_RETWEET_COUNT = 5
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -38,7 +40,7 @@ def interact(driver: Chrome, bot_username: str):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     # _scrape(driver, bot_username)
-    like_post(driver)
+    like_post(driver, bot_username)
 
 # Function to click 'Ok' on the policy update pop-up
 def agree_to_policy_updates(driver: Chrome):
@@ -102,12 +104,37 @@ def _write_out_ad_collection():
     # Clear the ads.
     ad_collection.Clear()
 
-def like_post(driver: Chrome):
-    test = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
-    test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
-    print(test1.click())
+# WORK IN PROGRESS
+def like_post(driver: Chrome, bot_username: str):
+    bot = None
+    try:
+        count = 0
+        found = False
+        while found == False:
+            if bot_username != bots[0]['username']:
+                count += 1
+            bot = bots[count]
+            found = True
+    except:
+        logging.error("Bot does not exist in bot_info.py")
 
-    time.sleep(30)
-    # target = TARGET_AD_COUNT
-    # while target > 0:
-    #     timeline = get_timeline(driver)
+    tags_to_include = bot['relevant_tags']
+    # try:
+    #     current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
+    #     for post in current_posts:
+    #         if tags_to_include in post.
+        # test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
+
+        # print(test1.click())
+    # except:
+    #     pass
+
+# WORK IN PROGRESS
+def retweet_post(driver: Chrome):
+    current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Retweets. Retweet"]')''')
+    
+    #check if there is a popup to confirm retweet
+    driver.execute_script(r'''return document.querySelector('[data-testid="retweetConfirm"]')''')
+
+def visit_followed_accounts(driver: Chrome):
+    pass

@@ -13,12 +13,13 @@ from bot.stages.scraping_util import wait_for_page_load
 import uuid
 import os
 import time
+from bot.constants import ERROR_LOGGING_PATH
 
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 
 # NEED TO CHANGE THE PATH FOR THE EC2 INSTANCE
-ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
+# ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
 
 VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
