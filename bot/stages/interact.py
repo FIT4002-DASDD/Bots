@@ -39,8 +39,8 @@ def interact(driver: Chrome, bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    # _scrape(driver, bot_username)
-    like_post(driver, bot_username)
+    _scrape(driver, bot_username)
+    # like_post(driver, bot_username)
 
 # Function to click 'Ok' on the policy update pop-up
 def agree_to_policy_updates(driver: Chrome):
@@ -119,15 +119,16 @@ def like_post(driver: Chrome, bot_username: str):
         logging.error("Bot does not exist in bot_info.py")
 
     tags_to_include = bot['relevant_tags']
-    # try:
-    #     current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
-    #     for post in current_posts:
-    #         if tags_to_include in post.
+    try:
+        # current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
+        current_posts = driver.execute_script(r'''return document.querySelectorAll('[data-testid="like"]')''')
+        # for post in current_posts:
+            # if tags_to_include in post.
         # test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
 
         # print(test1.click())
-    # except:
-    #     pass
+    except:
+        pass
 
 # WORK IN PROGRESS
 def retweet_post(driver: Chrome):
