@@ -3,7 +3,6 @@ Module for defining the bot twitter interaction flow.
 """
 
 from datetime import date, timedelta
-import time
 
 import proto.ad_pb2 as ad_pb2
 import proto.bot_pb2 as bot_pb2

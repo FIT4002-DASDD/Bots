@@ -97,18 +97,24 @@ def get_promoted_author(promoted_tweet: WebElement) -> str:
     return promoter.get_attribute('innerHTML')
 
 def get_promoted_tweet_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
-    promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
-    previous_url = driver.current_url
-    promotedIcon.click()
-    while previous_url == driver.current_url:
-        print(previous_url, driver.current_url)
-        time.sleep(0.5)
-    tweetLink = driver.current_url
-    driver.back()
+    try:
+        promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
+        previous_url = driver.current_url
+        promotedIcon.click()
+        while previous_url == driver.current_url:
+            time.sleep(0.5)
+        tweetLink = driver.current_url
+        driver.back()
+    except:
+        tweetLink = ""
+    logging.info("Tweet link: " + tweetLink)
     return tweetLink
-    return 
 
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
-    listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
-    tweetOfficialLink = listOfElement[-1].get_attribute('href')
+    try:
+        listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
+        tweetOfficialLink = listOfElement[-1].get_attribute('href')
+    except:
+        tweetOfficialLink = ""
+    logging.info("Official link: " + tweetOfficialLink)
     return tweetOfficialLink
