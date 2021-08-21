@@ -8,6 +8,7 @@ py_library(
     deps = [
         requirement("selenium"),
         requirement("absl-py"),
+        "//bot:constants",
         "//proto:ad_py_proto",
         "//proto:bot_py_proto",
     ],

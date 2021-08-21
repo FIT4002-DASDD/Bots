@@ -7,7 +7,7 @@ py_binary(
         "app.py",
     ],
     data = [
-        "//webdrivers:cdriver",
+        "//webdrivers:driver",
     ],
     deps = [
         "//bot/stages",

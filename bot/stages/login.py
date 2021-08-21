@@ -2,7 +2,7 @@
 Module for logging into a Twitter account.
 """
 from absl import logging
-from selenium.webdriver import Chrome
+from selenium.webdriver import Chrome, PhantomJS
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -23,7 +23,7 @@ ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
 VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
 
-def login_or_die(driver: Chrome, username: str, password: str):
+def login_or_die(driver: PhantomJS, username: str, password: str):
     if not _login(driver, username, password):
         filename = str(uuid.uuid4())
         file_ = open(os.path.dirname(ERROR_LOGGING_PATH) + '/' + filename + '.html', 'w')
@@ -32,7 +32,7 @@ def login_or_die(driver: Chrome, username: str, password: str):
         driver.quit()
         raise Exception('FAILURE. Log in was not successful.')
 
-def _login(driver: Chrome, username: str, password: str) -> bool:
+def _login(driver: PhantomJS, username: str, password: str) -> bool:
     try:
         driver.get(TWITTER_LOGIN_URL)
 
@@ -58,7 +58,7 @@ def _login(driver: Chrome, username: str, password: str) -> bool:
         return False
 
 # Function to key in phone number when phone number verification
-def verify_phone_number(driver: Chrome):
+def verify_phone_number(driver: PhantomJS):
     try:
         # to ensure that the verification required is phone number verification
         hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
