@@ -151,5 +151,4 @@ def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
         print(e)
         tweet_official_link = ""
         logging.info("Official link scrape failed")
-    print(tweet_official_link)  # TODO: remove line after this works
     return tweet_official_link
