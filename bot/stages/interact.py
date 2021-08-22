@@ -39,15 +39,16 @@ def interact(driver: Chrome, bot_username: str):
   _scrape(driver, bot_username)
   # like_post(driver, bot_username)
 
+
 # Function to click 'Ok' on the policy update pop-up
-
-
-def agree_to_policy_updates(driver: Chrome):
+def agree_to_policy_updates_if_exists(driver: Chrome):
   try:
     dialog = driver.find_element_by_xpath("//div[@role='dialog']")
     dialog.find_element_by_xpath(".//div[@role='button']").click()
+    logging.info("Policy update pop-up found and clicked.")
   except Exception as e:
-    logging.info("[UNSURE] No policy update pop-up.")
+    # No policy update found, continue as normal
+    pass
 
 
 def _scrape(driver: Chrome, bot_username: str):
@@ -91,17 +92,78 @@ def _should_flush_ad_collection() -> bool:
 
 
 def _write_out_ad_collection():
-  """Serializes the AdCollection proto and writes it out to a binary file."""
-  global LAST_WRITTEN_OUT
-  # Update when the collection was last written out.
-  LAST_WRITTEN_OUT = date.today()
 
-  # Path to the binary file containing the serialized protos for this bot.
-  location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out'
-  with open(location, 'wb') as f:
+
+<< << << < HEAD
+"""Serializes the AdCollection proto and writes it out to a binary file."""
+global LAST_WRITTEN_OUT
+# Update when the collection was last written out.
+LAST_WRITTEN_OUT = date.today()
+
+# Path to the binary file containing the serialized protos for this bot.
+location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out'
+ with open(location, 'wb') as f:
     f.write(ad_collection.SerializeToString())
     logging.info(
         f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
 
   # Clear the ads.
   ad_collection.Clear()
+== == == =
+"""Serializes the AdCollection proto and writes it out to a binary file."""
+global LAST_WRITTEN_OUT
+# Update when the collection was last written out.
+LAST_WRITTEN_OUT = date.today()
+
+# Path to the binary file containing the serialized protos for this bot.
+location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out'
+ with open(location, 'wb') as f:
+    f.write(ad_collection.SerializeToString())
+    logging.info(
+        f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
+
+  # Clear the ads.
+  ad_collection.Clear()
+
+
+# WORK IN PROGRESS
+def like_post(driver: Chrome, bot_username: str):
+  bot = None
+  try:
+    count = 0
+    found = False
+    while found == False:
+      if bot_username != bots[0]['username']:
+        count += 1
+      bot = bots[count]
+      found = True
+  except:
+    logging.error("Bot does not exist in bot_info.py")
+
+  tags_to_include = bot['relevant_tags']
+  # try:
+  #     current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
+  #     for post in current_posts:
+  #         if tags_to_include in post.
+  # test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
+
+  # print(test1.click())
+  # except:
+  #     pass
+
+
+# WORK IN PROGRESS
+def retweet_post(driver: Chrome):
+  current_posts = driver.execute_script(
+      r'''return document.querySelectorAll('[aria-label*="Retweets. Retweet"]')''')
+
+  # check if there is a popup to confirm retweet
+  driver.execute_script(
+      r'''return document.querySelector('[data-testid="retweetConfirm"]')''')
+
+
+def visit_followed_accounts(driver: Chrome):
+  pass
+
+
+>>>>>> > 92a8430... add comment, refactor names and error logging

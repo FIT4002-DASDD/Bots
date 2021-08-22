@@ -10,7 +10,7 @@ from absl import logging
 
 from bot.stages.config import create_geckodriver
 from bot.stages.login import login_or_die
-from bot.stages.interact import interact, agree_to_policy_updates
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists
 
 FLAGS = flags.FLAGS
 
@@ -39,6 +39,8 @@ def main(argv):
 
 # Wait before start of each stage.
 STAGE_WAIT_DELAY = 5
+
+# Wait before clicking on 'Ok' for policy updates after login
 SHORT_WAIT = 3
 
 # Bot flow should run periodically.
