@@ -96,7 +96,8 @@ def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
 
-def get_promoted_tweet_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
+# scrape tweet link for the promoted tweet, this is the link inside the tweeter
+def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
     try:
         promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
         previous_url = driver.current_url
@@ -114,6 +115,7 @@ def get_promoted_tweet_tweet_link(promoted_tweet: WebElement, driver: Chrome) ->
         logging.info("Tweet link scrape failed")
     return tweetLink
 
+# scrape official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
     try:
         listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
