@@ -101,20 +101,25 @@ def get_promoted_tweet_tweet_link(promoted_tweet: WebElement, driver: Chrome) ->
         promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
         previous_url = driver.current_url
         promotedIcon.click()
-        while previous_url == driver.current_url:
+        maxWaitTime = 10
+        currentWaitTime = 0
+        while previous_url == driver.current_url or currentWaitTime < maxWaitTime:
+            currentWaitTime += 1
             time.sleep(0.5)
         tweetLink = driver.current_url
         driver.back()
+        logging.info("Tweet link scraped successfully: " + tweetLink)
     except:
         tweetLink = ""
-    logging.info("Tweet link: " + tweetLink)
+        logging.info("Tweet link scrape failed")
     return tweetLink
 
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
     try:
         listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
         tweetOfficialLink = listOfElement[-1].get_attribute('href')
+        logging.info("Official link scraped successfully: " + tweetOfficialLink)
     except:
         tweetOfficialLink = ""
-    logging.info("Official link: " + tweetOfficialLink)
+        logging.info("Official link scrape failed")
     return tweetOfficialLink
