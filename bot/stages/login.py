@@ -1,8 +1,8 @@
 """
 Module for logging into a Twitter account.
 """
-from absl import logging
-from selenium.webdriver import Chrome, PhantomJS
+from absl import logging, flags
+from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -14,6 +14,7 @@ import uuid
 import os
 import time
 
+FLAGS = flags.FLAGS
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 
@@ -23,16 +24,17 @@ ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
 VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
 
-def login_or_die(driver: PhantomJS, username: str, password: str):
+
+def login_or_die(driver: Firefox, username: str, password: str):
     if not _login(driver, username, password):
         filename = str(uuid.uuid4())
-        file_ = open(os.path.dirname(ERROR_LOGGING_PATH) + '/' + filename + '.html', 'w')
-        file_.write(driver.page_source)
-        file_.close()
-        driver.quit()
+        with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
+            file_.write(driver.page_source)
+            driver.quit()
         raise Exception('FAILURE. Log in was not successful.')
 
-def _login(driver: PhantomJS, username: str, password: str) -> bool:
+
+def _login(driver: Firefox, username: str, password: str) -> bool:
     try:
         driver.get(TWITTER_LOGIN_URL)
 
@@ -57,12 +59,13 @@ def _login(driver: PhantomJS, username: str, password: str) -> bool:
         print(e)
         return False
 
+
 # Function to key in phone number when phone number verification
-def verify_phone_number(driver: PhantomJS):
+def verify_phone_number(driver: Firefox):
     try:
         # to ensure that the verification required is phone number verification
         hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
-        
+
         # find the element to fill the phone number detail
         phone_number = driver.find_element_by_name('challenge_response')
 

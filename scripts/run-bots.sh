@@ -6,7 +6,6 @@ INPUT="${BASEDIR}/bot-info.csv"
 while getopts o: opt; do
   case $opt in
     o)
-#      echo "-o was triggered, Parameter: $OPTARG" >&2
       OUTDIR=$OPTARG
       ;;
     \?)
