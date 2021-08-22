@@ -1,7 +1,6 @@
 """
 Module for defining the bot twitter interaction flow.
 """
-
 from datetime import date, timedelta
 
 import proto.ad_pb2 as ad_pb2
@@ -11,18 +10,18 @@ from absl import logging
 from selenium.webdriver import Chrome
 
 from bot.stages.scraping_util import get_promoted_author
+from bot.stages.scraping_util import get_promoted_tweet_link
+from bot.stages.scraping_util import get_promoted_tweet_official_link
 from bot.stages.scraping_util import get_timeline
 from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
-from bot.stages.scraping_util import get_promoted_tweet_link
-from bot.stages.scraping_util import get_promoted_tweet_official_link
 
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
-TARGET_AD_COUNT = 5
+TARGET_AD_COUNT = 2
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()

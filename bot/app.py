@@ -1,16 +1,16 @@
 """
 Entry point.
 """
-from schedule import every, repeat, run_pending
 import time
 
 from absl import app
 from absl import flags
 from absl import logging
+from schedule import every, repeat, run_pending
 
 from bot.stages.config import create_chromedriver
-from bot.stages.login import login_or_die
 from bot.stages.interact import interact
+from bot.stages.login import login_or_die
 
 FLAGS = flags.FLAGS
 

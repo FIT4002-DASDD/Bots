@@ -2,9 +2,8 @@
 Contains utilities to help with scraping.
 Ref: https://github.com/kautzz/twitter-problock
 """
-
-from typing import Union
 import time
+from typing import Union
 
 from absl import flags
 from absl import logging
@@ -96,55 +95,61 @@ def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
 
-"""
-This function can scrape tweet link for the promoted tweet, this is the link inside the tweeter
 
-Parameters:
-    promoted_tweet: WebElement for the promoted tweet
-    driver: web driver
-
-Returns:
-    tweetLink: tweet link for the promoted tweet, this is the link inside the tweeter
-"""
 def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
+    """
+    This function can scrape tweet link for the promoted tweet, this is the link inside the tweeter
+
+    Parameters:
+        promoted_tweet: WebElement for the promoted tweet
+        driver: web driver
+
+    Returns:
+        tweet_link: tweet link for the promoted tweet, this is the link inside the tweeter
+    """
     previous_url = driver.current_url
     try:
-        promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
-        promotedIcon.click()
-        maxWaitTime = 10
-        currentWaitTime = 0
-        while previous_url == driver.current_url or currentWaitTime < maxWaitTime:
-            currentWaitTime += 1
+        promoted_icon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
+        promoted_icon.click()
+        max_wait_time = 10
+        current_wait_time = 0
+        while previous_url == driver.current_url or current_wait_time < max_wait_time:
+            current_wait_time += 1
             time.sleep(0.5)
-        tweetLink = driver.current_url
-        if previous_url != tweetLink:
+        tweet_link = driver.current_url
+        if previous_url != tweet_link:
             driver.back()
-            logging.info("Tweet link scraped successfully: " + tweetLink)
+            logging.info("Tweet link scraped successfully: " + tweet_link)
         else:
-            tweetLink = ""
+            tweet_link = ""
             logging.info("Tweet link scrape failed")
-    except:
+    except Exception as e:
+        print(e)
         if previous_url != driver.current_url:
             driver.back()
-        tweetLink = ""
+        tweet_link = ""
         logging.info("Tweet link scrape failed")
-    return tweetLink
+    return tweet_link
 
-"""
-This function can scrape official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
 
-Parameters:
-    promoted_tweet: WebElement for the promoted tweet
-
-Returns:
-    tweetOfficialLink: official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
-"""
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
+    """
+    This function can scrape official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+
+    Parameters:
+        promoted_tweet: WebElement for the promoted tweet
+
+    Returns:
+        tweet_official_link: official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+    """
     try:
-        listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
-        tweetOfficialLink = listOfElement[-1].get_attribute('href')
-        logging.info("Official link scraped successfully: " + tweetOfficialLink)
-    except:
-        tweetOfficialLink = ""
+        list_of_element = promoted_tweet.find_elements(By.XPATH,
+                                                       ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
+        tweet_official_link = list_of_element[-1].get_attribute('href')
+        logging.info("Official link scraped successfully: " + tweet_official_link)
+    except Exception as e:
+        print(e)
+        tweet_official_link = ""
         logging.info("Official link scrape failed")
-    return tweetOfficialLink
+    print(tweet_official_link)  # TODO: remove line after this works
+    return tweet_official_link

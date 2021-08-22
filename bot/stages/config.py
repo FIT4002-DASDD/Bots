@@ -1,9 +1,9 @@
 """
 Module for app configuration.
 """
+from absl import flags
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
-from absl import flags
 
 FLAGS = flags.FLAGS
 
