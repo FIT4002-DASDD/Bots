@@ -19,6 +19,8 @@ flags.DEFINE_string('bot_username', None, 'Pass in bot username (required)')
 flags.DEFINE_string('bot_password', None, 'Pass in bot password (required)')
 flags.DEFINE_string('bot_output_directory', None,
                     'Pass in directory for storing bot output (required)')
+flags.DEFINE_string('path_to_error_log', 'error_logging',
+                    'Pass in the path for error logging')
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
@@ -42,6 +44,7 @@ STAGE_WAIT_DELAY = 5
 
 # Wait before clicking on 'Ok' for policy updates after login
 SHORT_WAIT = 3
+
 
 # Bot flow should run periodically.
 

@@ -10,7 +10,6 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('path_to_chromedriver', 'webdrivers/chromedriver', 'Pass in the path to chromedriver.')
 flags.DEFINE_string('path_to_geckodriver', 'webdrivers/geckodriver', 'Pass in the path to geckodriver.')
-flags.DEFINE_string('path_to_error_log', 'error_logging', 'Pass in the path for error logging')
 
 WEBDRIVER_OPTIONS = [
     '--disable-blink-features=AutomationControlled',

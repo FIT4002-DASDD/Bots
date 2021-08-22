@@ -1,8 +1,10 @@
 """
 Module for logging into a Twitter account.
 """
+from typing import Union
+
 from absl import logging, flags
-from selenium.webdriver import Firefox
+from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -25,7 +27,7 @@ VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 
-def login_or_die(driver: Firefox, username: str, password: str):
+def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
         filename = str(uuid.uuid4())
         with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
@@ -34,7 +36,7 @@ def login_or_die(driver: Firefox, username: str, password: str):
         raise Exception('FAILURE. Log in was not successful.')
 
 
-def _login(driver: Firefox, username: str, password: str) -> bool:
+def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
     try:
         driver.get(TWITTER_LOGIN_URL)
 
@@ -61,7 +63,7 @@ def _login(driver: Firefox, username: str, password: str) -> bool:
 
 
 # Function to key in phone number when phone number verification
-def verify_phone_number(driver: Firefox):
+def verify_phone_number(driver: Union[Firefox, Chrome]):
     try:
         # to ensure that the verification required is phone number verification
         hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
