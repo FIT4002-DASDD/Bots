@@ -9,3 +9,4 @@ package-lock.json
 bazel*
 .ijwb
 bot_out
+error_logging

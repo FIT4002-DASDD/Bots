@@ -1,5 +1,8 @@
 filegroup(
-    name = "driver",
-    srcs = ["geckodriver"],
+    name = "drivers",
+    srcs = [
+        "chromedriver",
+        "geckodriver",
+    ],
     visibility = ["//visibility:public"],
 )
