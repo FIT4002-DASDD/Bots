@@ -16,6 +16,8 @@ from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
+from bot.stages.scraping_util import get_promoted_tweet_link
+from bot.stages.scraping_util import get_promoted_tweet_official_link
 
 FLAGS = flags.FLAGS
 
@@ -55,6 +57,9 @@ def _scrape(driver: Chrome, bot_username: str):
             ad.promoter_handle = get_promoted_author(promoted_in_timeline)
             ad.screenshot = take_element_screenshot(promoted_in_timeline)
             ad.created_at.GetCurrentTime()  # This sets the field:  https://stackoverflow.com/a/65138505/15507541
+
+            ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
+            ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
 
             refresh_page(driver)
         else:

@@ -22,4 +22,6 @@ message Ad {
   google.protobuf.Timestamp created_at = 5;
   // Link to the promoted Ad.
   string seen_on = 6;
+  // Link to the official website for promoted Ad.
+  string official_ad_link = 7;
 }

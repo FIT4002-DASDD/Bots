@@ -4,6 +4,7 @@ Ref: https://github.com/kautzz/twitter-problock
 """
 
 from typing import Union
+import time
 
 from absl import flags
 from absl import logging
@@ -94,3 +95,56 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
 def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
+
+"""
+This function can scrape tweet link for the promoted tweet, this is the link inside the tweeter
+
+Parameters:
+    promoted_tweet: WebElement for the promoted tweet
+    driver: web driver
+
+Returns:
+    tweetLink: tweet link for the promoted tweet, this is the link inside the tweeter
+"""
+def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
+    previous_url = driver.current_url
+    try:
+        promotedIcon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
+        promotedIcon.click()
+        maxWaitTime = 10
+        currentWaitTime = 0
+        while previous_url == driver.current_url or currentWaitTime < maxWaitTime:
+            currentWaitTime += 1
+            time.sleep(0.5)
+        tweetLink = driver.current_url
+        if previous_url != tweetLink:
+            driver.back()
+            logging.info("Tweet link scraped successfully: " + tweetLink)
+        else:
+            tweetLink = ""
+            logging.info("Tweet link scrape failed")
+    except:
+        if previous_url != driver.current_url:
+            driver.back()
+        tweetLink = ""
+        logging.info("Tweet link scrape failed")
+    return tweetLink
+
+"""
+This function can scrape official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+
+Parameters:
+    promoted_tweet: WebElement for the promoted tweet
+
+Returns:
+    tweetOfficialLink: official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+"""
+def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
+    try:
+        listOfElement = promoted_tweet.find_elements(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
+        tweetOfficialLink = listOfElement[-1].get_attribute('href')
+        logging.info("Official link scraped successfully: " + tweetOfficialLink)
+    except:
+        tweetOfficialLink = ""
+        logging.info("Official link scrape failed")
+    return tweetOfficialLink
