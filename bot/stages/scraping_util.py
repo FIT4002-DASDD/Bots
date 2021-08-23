@@ -8,7 +8,7 @@ from typing import Union
 from absl import flags
 from absl import logging
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import Chrome
+from selenium.webdriver import Chrome, Firefox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,7 +19,7 @@ FLAGS = flags.FLAGS
 SCREENSHOT_COUNT = 1
 
 
-def get_timeline(driver: Chrome) -> WebElement:
+def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
     """Returns a twitter timeline WebElement."""
     return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
@@ -42,16 +42,15 @@ def _take_screenshot_and_save_to_file(web_element: WebElement):
         SCREENSHOT_COUNT += 1
 
 
-def wait_for_page_load(driver: Chrome) -> bool:
+def wait_for_page_load(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Waiting for page load...')
 
     try:
-        WebDriverWait(driver, 2).until(EC.visibility_of_element_located(
+        WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
             (By.XPATH, "//div[@role='progressbar']/following::div[contains(@style, '26px')]")))
     except Exception as e:
         print(e)
         logging.error('Could not trigger loading of new content.')
-        return False
 
     try:
         WebDriverWait(driver, 7).until(EC.invisibility_of_element_located(
@@ -65,14 +64,14 @@ def wait_for_page_load(driver: Chrome) -> bool:
     return True
 
 
-def load_more_tweets(driver: Chrome) -> bool:
+def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Scrolling to lazy load more tweets...')
 
     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
     return wait_for_page_load(driver)
 
 
-def refresh_page(driver: Chrome) -> bool:
+def refresh_page(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Refreshing page...')
 
     driver.refresh()
