@@ -5,7 +5,7 @@ Node.JS, Protocol Buffers, and C++. As such, the [Bazel](https://bazel.build/) b
 
 ## Prerequisites
 
-Install Bazel:  https://docs.bazel.build/versions/main/install-ubuntu.html
+Install Bazel: https://docs.bazel.build/versions/main/install-ubuntu.html
 
 ## Running the E2E workflow
 
@@ -48,7 +48,7 @@ the `--sandbox_writable_path` flag:
 
 Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
 
-| :exclamation:    **
+| :exclamation: **
 NOTE:** You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make
 changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this
 directory will be changed. | |-----------------------------------------|
