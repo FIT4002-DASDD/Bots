@@ -58,9 +58,9 @@ def _scrape(driver: Chrome, bot_username: str):
             ad.screenshot = take_element_screenshot(promoted_in_timeline)
             ad.created_at.GetCurrentTime()  # This sets the field:  https://stackoverflow.com/a/65138505/15507541
 
-            ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
             ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
-
+            ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
+            
             refresh_page(driver)
         else:
             if not load_more_tweets(driver):
