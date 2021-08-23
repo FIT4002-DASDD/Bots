@@ -71,9 +71,9 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
       # This sets the field:  https://stackoverflow.com/a/65138505/15507541
       ad.created_at.GetCurrentTime()
 
+      ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
       ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
-      ad.official_ad_link = get_promoted_tweet_official_link(
-          promoted_in_timeline)
+
 
       refresh_page(driver)
     else:
