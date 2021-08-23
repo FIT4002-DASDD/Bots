@@ -34,5 +34,4 @@ def create_geckodriver() -> Firefox:
   op = GeckoOptions()
   for arg in WEBDRIVER_OPTIONS:
     op.add_argument(arg)
-  driver = Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)
-  return driver
+  return Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)

@@ -20,62 +20,60 @@ FLAGS = flags.FLAGS
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 
-# NEED TO CHANGE THE PATH FOR THE EC2 INSTANCE
-ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
-
 VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
-    if not _login(driver, username, password):
-        filename = str(uuid.uuid4())
-        with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
-            file_.write(driver.page_source)
-            driver.quit()
-        raise Exception('FAILURE. Log in was not successful.')
+  if not _login(driver, username, password):
+    filename = str(uuid.uuid4())
+    with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
+      file_.write(driver.page_source)
+      driver.quit()
+    raise Exception('FAILURE. Log in was not successful.')
 
 
 def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
-    try:
-        driver.get(TWITTER_LOGIN_URL)
+  try:
+    driver.get(TWITTER_LOGIN_URL)
 
-        e_username = WebDriverWait(driver, LOGIN_WAIT).until(
-            EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
-        e_pw = driver.find_element_by_name('session[password]')
+    e_username = WebDriverWait(driver, LOGIN_WAIT).until(
+        EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
+    e_pw = driver.find_element_by_name('session[password]')
 
-        e_username.send_keys(username)
-        e_pw.send_keys(password)
-        e_pw.send_keys(Keys.RETURN)
+    e_username.send_keys(username)
+    e_pw.send_keys(password)
+    e_pw.send_keys(Keys.RETURN)
 
-        # Pass phone number in for verification
-        time.sleep(VERIFICATION_WAIT)
-        verify_phone_number(driver)
+    # Pass phone number in for verification
+    time.sleep(VERIFICATION_WAIT)
+    verify_phone_number(driver)
 
-        if wait_for_page_load(driver):
-            logging.info('Successfully logged in.')
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(e)
-        return False
+    if wait_for_page_load(driver):
+      logging.info('Successfully logged in.')
+      return True
+    else:
+      return False
+  except Exception as e:
+    print(e)
+    return False
 
 
 # Function to key in phone number when phone number verification
 def verify_phone_number(driver: Union[Firefox, Chrome]):
-    try:
-        # to ensure that the verification required is phone number verification
-        hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
+  try:
+    # to ensure that the verification required is phone number verification
+    hint = driver.find_element_by_xpath(
+        "//strong[contains(text(), 'Your phone number ends in 38')]")
 
-        # find the element to fill the phone number detail
-        phone_number = driver.find_element_by_name('challenge_response')
+    # find the element to fill the phone number detail
+    phone_number = driver.find_element_by_name('challenge_response')
 
-        # fill in the element with phone number 
-        phone_number.send_keys(ACCOUNT_PHONE_NUMBER)
+    # fill in the element with phone number
+    phone_number.send_keys(ACCOUNT_PHONE_NUMBER)
 
-        # hit enter
-        phone_number.send_keys(Keys.RETURN)
-        logging.info('Keyed in phone number for verification.')
-    except Exception as e:
-        logging.info('[UNSURE] No phone number verification needed.')
+    # hit enter
+    phone_number.send_keys(Keys.RETURN)
+    logging.info('Keyed in phone number for verification.')
+  except Exception as e:
+    return
