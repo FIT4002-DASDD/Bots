@@ -8,8 +8,10 @@ from absl import flags
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('path_to_chromedriver', 'webdrivers/chromedriver', 'Pass in the path to chromedriver.')
-flags.DEFINE_string('path_to_geckodriver', 'webdrivers/geckodriver', 'Pass in the path to geckodriver.')
+flags.DEFINE_string('path_to_chromedriver',
+                    'webdrivers/chromedriver', 'Pass in the path to chromedriver.')
+flags.DEFINE_string('path_to_geckodriver',
+                    'webdrivers/geckodriver', 'Pass in the path to geckodriver.')
 
 WEBDRIVER_OPTIONS = [
     '--disable-blink-features=AutomationControlled',
@@ -22,15 +24,15 @@ WEBDRIVER_OPTIONS = [
 
 
 def create_chromedriver() -> Chrome:
-    op = ChromeOptions()
-    for arg in WEBDRIVER_OPTIONS:
-        op.add_argument(arg)
-    return Chrome(executable_path=FLAGS.path_to_chromedriver, options=op)
+  op = ChromeOptions()
+  for arg in WEBDRIVER_OPTIONS:
+    op.add_argument(arg)
+  return Chrome(executable_path=FLAGS.path_to_chromedriver, options=op)
 
 
 def create_geckodriver() -> Firefox:
-    op = GeckoOptions()
-    for arg in WEBDRIVER_OPTIONS:
-        op.add_argument(arg)
-    driver = Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)
-    return driver
+  op = GeckoOptions()
+  for arg in WEBDRIVER_OPTIONS:
+    op.add_argument(arg)
+  driver = Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)
+  return driver

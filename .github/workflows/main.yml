@@ -21,6 +21,18 @@ jobs:
       - uses: bazelbuild/setup-bazelisk@v1
       - name: Testing bots
         run: bazel test $(bazel query //bot/...) --test_output=all
+
+  build_push_service:
+    name: Build Push Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Installing AWS SDK dependencies
+        run: sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
+      - run: echo $HOME
+      - name: Building push service (--sandbox_writable_path needed because AWS SDK's CMake rules modify the Bazel sandbox)
+        run: bazel build //push-service:all --sandbox_writable_path=/home/runner/.cache/bazel/
 #  build:
 #    name: Build Push Service
 #    runs-on: ubuntu-latest

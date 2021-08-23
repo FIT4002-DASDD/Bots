@@ -1,7 +1,6 @@
 """
 Module for defining the bot twitter interaction flow.
 """
-
 from datetime import date, timedelta
 from typing import Union
 
@@ -12,6 +11,8 @@ from absl import logging
 from selenium.webdriver import Chrome, Firefox
 
 from bot.stages.scraping_util import get_promoted_author
+from bot.stages.scraping_util import get_promoted_tweet_link
+from bot.stages.scraping_util import get_promoted_tweet_official_link
 from bot.stages.scraping_util import get_timeline
 from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
@@ -21,7 +22,7 @@ from bot.stages.scraping_util import take_element_screenshot
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
-TARGET_AD_COUNT = 5
+TARGET_AD_COUNT = 2
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -70,6 +71,9 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
             ad.screenshot = take_element_screenshot(promoted_in_timeline)
             # This sets the field:  https://stackoverflow.com/a/65138505/15507541
             ad.created_at.GetCurrentTime()
+
+            ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
+            ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
 
             refresh_page(driver)
         else:

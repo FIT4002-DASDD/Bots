@@ -1,12 +1,12 @@
 """
 Entry point.
 """
-from schedule import every, repeat, run_pending
 import time
 
 from absl import app
 from absl import flags
 from absl import logging
+from schedule import every, repeat, run_pending
 
 from bot.stages.config import create_geckodriver
 from bot.stages.login import login_or_die
@@ -62,7 +62,7 @@ def _main():
 
     # Wait to click on 'Ok' for policy updates
     time.sleep(SHORT_WAIT)
-    agree_to_policy_updates(driver)
+    agree_to_policy_updates_if_exists(driver)
 
     # Interact and Scrape.
     time.sleep(STAGE_WAIT_DELAY)
