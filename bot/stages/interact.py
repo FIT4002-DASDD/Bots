@@ -26,6 +26,7 @@ FLAGS = flags.FLAGS
 TARGET_AD_COUNT = 5
 
 TARGET_RETWEET_COUNT = 3
+TARGET_SCROLL_COUNT = 10
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -40,9 +41,9 @@ def interact(driver: Chrome, bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    # _scrape(driver, bot_username)
+    _scrape(driver, bot_username)
     # like_post(driver, bot_username)
-    retweet_posts(driver, bot_username)
+    # retweet_posts(driver, bot_username)
 
 
 # Function to click 'Ok' on the policy update pop-up
@@ -107,7 +108,6 @@ def _write_out_ad_collection():
     # Clear the ads.
     ad_collection.Clear()
 
-# WORK IN PROGRESS
 def like_post(driver: Chrome, bot_username: str):
     bot = None
     try:
@@ -122,23 +122,27 @@ def like_post(driver: Chrome, bot_username: str):
         logging.error("Bot does not exist in bot_info.py")
 
     tags_to_include = bot['relevant_tags']
-    try:
-        # current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
-        # current_posts = driver.execute_script(r'''return document.querySelectorAll('[data-testid="like"]')''')
-        contents_and_likes = driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
-        print(len(contents_and_likes))
-        for element in range(0, len(contents_and_likes), 4):
-            try:
-                if contents_and_likes[element].text in tags_to_include:
-                    contents_and_likes[element-1].click()
-            except exceptions.StaleElementReferenceException as e:
-                pass
+    count = 0
+    while count < TARGET_SCROLL_COUNT:
+        try:
+            contents_and_likes = driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
+            for element in range(0, len(contents_and_likes), 4):
+                try:
+                    if any(tag in contents_and_likes[element].text for tag in tags_to_include):
+                        xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor::div[4]//div[@data-testid="like"]' 
+                        like_button = driver.find_element_by_xpath(xpath_with_text)
+                        like_button.click()
+                        # print("Liked a post containing the word: ", tag)
+                except exceptions.StaleElementReferenceException as e:
+                    pass
+            
+            load_more_tweets(driver)
+            count += 1
+            
+        except Exception as e:
+            count += 1
+            pass
         
-    except Exception as e:
-        pass
-        
-
-# WORK IN PROGRESS
 def retweet_posts(driver: Chrome, bot_username: str):
     bot = None
     try:

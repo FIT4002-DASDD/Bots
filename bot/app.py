@@ -57,7 +57,7 @@ def _main():
         # Interact and Scrape.
         time.sleep(STAGE_WAIT_DELAY)
         interact(driver, FLAGS.bot_username)
-
+        
         # Cleanup.
         driver.quit()
 

@@ -13,20 +13,23 @@ from bot.stages.scraping_util import wait_for_page_load
 import uuid
 import os
 import time
-from bot.constants import ERROR_LOGGING_PATH
+from datetime import datetime
+# from bot.constants import ERROR_LOGGING_PATH
 
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 
 # NEED TO CHANGE THE PATH FOR THE EC2 INSTANCE
-# ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
+ERROR_LOGGING_PATH = '/home/izadimrantan/FIT4002-DASDD-Bots/error_logging/'
 
 VERIFICATION_WAIT = 3
 ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 def login_or_die(driver: Chrome, username: str, password: str):
     if not _login(driver, username, password):
-        filename = str(uuid.uuid4())
+        # filename = str(uuid.uuid4())
+        now = datetime.now()
+        filename = now.strftime(r"%Y-%m-%d %H_%M_%S") + username
         file_ = open(os.path.dirname(ERROR_LOGGING_PATH) + '/' + filename + '.html', 'w')
         file_.write(driver.page_source)
         file_.close()

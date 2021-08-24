@@ -39,6 +39,11 @@ bots = [
                 '#alllivesmatter',
                 '#libtards',
                 '#liberalsnowflakes'
+                'freedom',
+                'guns',
+                'trump',
+                'maga',
+                'god'
             ]
         },
         {
@@ -78,7 +83,11 @@ bots = [
                 '#leftists',
                 '#democrat',
                 '#republicanssuck',
-                '#getoutthevote'
+                '#getoutthevote',
+                'liberal',
+                'social justice',
+                '#BernieSanders',
+                'alexandria ocasio cortez'
             ]
         }
     ]
