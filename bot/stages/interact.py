@@ -9,8 +9,9 @@ import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
 from selenium.webdriver import Chrome
+from selenium.common import exceptions
 
-from bot.stages.scraping_util import get_promoted_author
+from bot.stages.scraping_util import get_promoted_author, wait_for_page_load
 from bot.stages.scraping_util import get_timeline
 from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
@@ -24,7 +25,7 @@ FLAGS = flags.FLAGS
 # This is just an aim - there is no guarantee this target will be met.
 TARGET_AD_COUNT = 5
 
-TARGET_RETWEET_COUNT = 5
+TARGET_RETWEET_COUNT = 3
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -39,8 +40,10 @@ def interact(driver: Chrome, bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    _scrape(driver, bot_username)
+    # _scrape(driver, bot_username)
     # like_post(driver, bot_username)
+    retweet_posts(driver, bot_username)
+
 
 # Function to click 'Ok' on the policy update pop-up
 def agree_to_policy_updates(driver: Chrome):
@@ -121,21 +124,61 @@ def like_post(driver: Chrome, bot_username: str):
     tags_to_include = bot['relevant_tags']
     try:
         # current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Likes. Like"]')''')
-        current_posts = driver.execute_script(r'''return document.querySelectorAll('[data-testid="like"]')''')
-        # for post in current_posts:
-            # if tags_to_include in post.
-        # test1 = test[0].find_element_by_xpath('//div[contains(@aria-label,"Likes. Like")]')
-
-        # print(test1.click())
-    except:
+        # current_posts = driver.execute_script(r'''return document.querySelectorAll('[data-testid="like"]')''')
+        contents_and_likes = driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
+        print(len(contents_and_likes))
+        for element in range(0, len(contents_and_likes), 4):
+            try:
+                if contents_and_likes[element].text in tags_to_include:
+                    contents_and_likes[element-1].click()
+            except exceptions.StaleElementReferenceException as e:
+                pass
+        
+    except Exception as e:
         pass
+        
 
 # WORK IN PROGRESS
-def retweet_post(driver: Chrome):
-    current_posts = driver.execute_script(r'''return document.querySelectorAll('[aria-label*="Retweets. Retweet"]')''')
-    
-    #check if there is a popup to confirm retweet
-    driver.execute_script(r'''return document.querySelector('[data-testid="retweetConfirm"]')''')
+def retweet_posts(driver: Chrome, bot_username: str):
+    bot = None
+    try:
+        count = 0
+        found = False
+        while found == False:
+            if bot_username != bots[0]['username']:
+                count += 1
+            bot = bots[count]
+            found = True
+    except:
+        logging.error("Bot does not exist in bot_info.py")
 
-def visit_followed_accounts(driver: Chrome):
-    pass
+    followed_accounts = bot['followed_accounts']
+
+    for account in followed_accounts:
+        visit_account(driver, account)
+        buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
+        iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
+        for i in range(iterate):
+            buttons_to_retweet[i].click()
+
+            # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+            try:
+                driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+            except Exception as e:
+                pass
+            time.sleep(2)
+        time.sleep(5)
+
+def visit_account(driver: Chrome, followed_account: str):
+    try:
+        profile_url = 'https://twitter.com/' + followed_account
+        driver.get(profile_url)
+
+        if wait_for_page_load(driver):
+            logging.info('Successfully visited account : ' + followed_account)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
