@@ -11,12 +11,15 @@ from absl import logging
 from selenium.webdriver import Chrome, Firefox
 
 from bot.stages.scraping_util import get_promoted_author
+from bot.stages.scraping_util import get_promoted_follow
 from bot.stages.scraping_util import get_promoted_tweet_link
 from bot.stages.scraping_util import get_promoted_tweet_official_link
 from bot.stages.scraping_util import get_timeline
+from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import load_more_tweets
 from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
+from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import take_element_screenshot
 
 FLAGS = flags.FLAGS
@@ -58,6 +61,21 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
   while target > 0:
     timeline = get_timeline(driver)
     promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
+    sidebar = get_follow_sidebar(driver)
+    promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
+    refresh = False
+    if promoted_in_follow_sidebar:
+      bot = bot_pb2.Bot()
+      bot.id = bot_username
+
+      ad = ad_collection.ads.add()
+      ad.bot.id = bot.id
+      #ad.content = promoted_in_timeline.text
+      ad.promoter_handle = get_promoted_follow(promoted_in_follow_sidebar)
+      #ad.screenshot = take_element_screenshot(promoted_in_timeline)
+      ad.created_at.GetCurrentTime()
+
+      refresh = True
     if promoted_in_timeline:
       # We must process this found tweet before refresh as the WebElement may no longer exist after
       bot = bot_pb2.Bot()
@@ -74,7 +92,9 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
       ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
       ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
 
-
+      refresh = True
+    
+    if refresh:
       refresh_page(driver)
     else:
       if not load_more_tweets(driver):
