@@ -1,0 +1,22 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "connection:test": "node testConnectivity.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.13.1",
+    "aws-sdk": "^2.892.0",
+    "axios": "^0.21.1",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^8.2.0",
+    "json2csv": "^5.0.6",
+    "pg": "^8.6.0"
+  }
+}
