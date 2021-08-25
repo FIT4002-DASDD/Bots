@@ -97,7 +97,7 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
     logging.info('Searching sidebar for promoted follows...')
 
     try:
-        promoted = sidebar.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
+        promoted = sidebar.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
         logging.info('Found a promoted follow.')
         return promoted
     except NoSuchElementException:
@@ -176,7 +176,21 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
     Returns:
         the handle of the promoted account as a string
     """
-    promoter = promoted_follow.find_element(By.XPATH, ".//*[contains(text(), '@')]")
-    handle = promoter.get_attribute('innerHTML')
-    logging.info("Scraped promoted follow: " + handle)
-    return promoter.get_attribute(handle)
+    try:
+        promoter = promoted_follow.find_element(By.XPATH, ".//*[contains(text(), '@')]")
+        handle = promoter.get_attribute('innerHTML')
+        logging.info("Scraped promoted follow: " + handle)
+    except Exception as e:
+        print(e)
+        tweet_official_link = ""
+        logging.info("Promoted follow handle scrape failed")
+    return handle
+
+def get_promoted_follow_link(promoted_follow: WebElement) -> str:
+    try:
+        link = promoted_follow.find_element(By.XPATH, ".//a").get_attribute('href')
+    except Exception as e:
+        print(e)
+        link = ""
+        logging.info("Follow link scrape failed")
+    return link

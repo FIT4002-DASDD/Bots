@@ -14,6 +14,7 @@ from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
 from bot.stages.scraping_util import get_promoted_tweet_link
 from bot.stages.scraping_util import get_promoted_tweet_official_link
+from bot.stages.scraping_util import get_promoted_follow_link
 from bot.stages.scraping_util import get_timeline
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import load_more_tweets
@@ -74,6 +75,8 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
       ad.promoter_handle = get_promoted_follow(promoted_in_follow_sidebar)
       #ad.screenshot = take_element_screenshot(promoted_in_timeline)
       ad.created_at.GetCurrentTime()
+
+      ad.seen_on = get_promoted_follow_link(promoted_in_follow_sidebar)
 
       refresh = True
     if promoted_in_timeline:
