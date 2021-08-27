@@ -151,14 +151,14 @@ def like_post(driver: Chrome, bot_username: str) -> None:
                         like_button = driver.find_element_by_xpath(xpath_with_text)
                         like_button.click()
                 except exceptions.StaleElementReferenceException as e:
-                    pass
+                    continue
             
             load_more_tweets(driver)
             count += 1
             
         except Exception as e:
             count += 1
-            pass
+            continue
 
     return None
         
@@ -188,7 +188,8 @@ def retweet_posts(driver: Chrome, bot_username: str) -> None:
             try:
                 driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
             except Exception as e:
-                pass
+                continue
+            
             time.sleep(2)
         time.sleep(5)
 
@@ -204,6 +205,7 @@ def visit_account(driver: Chrome, followed_account: str) -> bool:
             return True
         else:
             return False
+            
     except Exception as e:
         print(e)
         return False

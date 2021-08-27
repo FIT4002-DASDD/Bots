@@ -26,8 +26,7 @@ ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
   if not _login(driver, username, password):
-    now = datetime.now()
-    filename = now.strftime(r"%Y-%m-%d %H_%M_%S") + username
+    filename = datetime.now().strftime(r"%Y-%m-%d %H_%M_%S") + username
     with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
       file_.write(driver.page_source)
       driver.quit()
