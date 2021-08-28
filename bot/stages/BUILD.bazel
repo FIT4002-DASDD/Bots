@@ -19,3 +19,19 @@ py_test(
     srcs = ["login_test.py"],
     deps = [":stages"],
 )
+
+py_test(
+    name = "interact_test",
+    srcs = ["interact_test.py"],
+    deps = [":stages"],
+)
+
+py_test(
+    name = "scraping_util_test",
+    srcs = ["scraping_util_test.py"],
+    deps = [
+        ":stages",
+        requirement("selenium"),
+        requirement("absl-py"),
+    ],
+)
