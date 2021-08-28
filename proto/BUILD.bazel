@@ -1,5 +1,6 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 
 proto_library(
     name = "bot_proto",
@@ -9,7 +10,10 @@ proto_library(
 proto_library(
     name = "ad_proto",
     srcs = ["ad.proto"],
-    deps = [":bot_proto"],
+    deps = [
+        ":bot_proto",
+        "@com_google_protobuf//:timestamp_proto",  # See FAQs: https://blog.bazel.build/2017/02/27/protocol-buffers.html
+    ],
 )
 
 py_proto_library(
@@ -26,4 +30,16 @@ py_proto_library(
         ":bot_py_proto",
         "@com_google_protobuf//:protobuf_python",
     ],
+)
+
+cc_proto_library(
+    name = "ad_cc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":ad_proto"],
+)
+
+cc_proto_library(
+    name = "bot_cc_proto",
+    visibility = ["//visibility:public"],
+    deps = [":bot_proto"],
 )

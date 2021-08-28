@@ -2,6 +2,7 @@
 Entry point.
 """
 import time
+from datetime import datetime
 
 from absl import app
 from absl import flags
@@ -9,8 +10,8 @@ from absl import logging
 from schedule import every, repeat, run_pending
 
 from bot.stages.config import create_geckodriver
-from bot.stages.login import login_or_die
 from bot.stages.interact import interact, agree_to_policy_updates_if_exists
+from bot.stages.login import login_or_die
 
 FLAGS = flags.FLAGS
 
@@ -24,19 +25,17 @@ flags.DEFINE_string('path_to_error_log', 'error_logging',
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
-flags.register_validator('bot_password', lambda pw: pw and len(
-    pw) > 0, message='Invalid password detected.')
+flags.register_validator('bot_password', lambda pw: pw and len(pw) > 0, message='Invalid password detected.')
 
-flags.mark_flags_as_required(
-    ['bot_username', 'bot_password', 'bot_output_directory'])
+flags.mark_flags_as_required(['bot_username', 'bot_password', 'bot_output_directory'])
 
 
 def main(argv):
-  del argv  # Unused.
-  _main()
-  while True:
-    run_pending()
-    time.sleep(1)
+    del argv  # Unused.
+    _main()
+    while True:
+        run_pending()
+        time.sleep(1)
 
 
 # Wait before start of each stage.
@@ -47,35 +46,34 @@ SHORT_WAIT = 3
 
 
 # Bot flow should run periodically.
-
-
 @repeat(every().hour)
 def _main():
-  logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
-
-  try:
+    logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
     # Create the driver.
     driver = create_geckodriver()
+    try:
+        # Login.
+        login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
 
-    # Login.
-    login_or_die(driver, FLAGS.bot_username, FLAGS.bot_password)
+        # Agree to policy updates if presented.
+        time.sleep(SHORT_WAIT)  # Wait to click on 'Ok' for policy updates
+        agree_to_policy_updates_if_exists(driver)
 
-    # Wait to click on 'Ok' for policy updates
-    time.sleep(SHORT_WAIT)
-    agree_to_policy_updates_if_exists(driver)
+        # Interact and Scrape.
+        time.sleep(STAGE_WAIT_DELAY)
+        interact(driver, FLAGS.bot_username)
 
-    # Interact and Scrape.
-    time.sleep(STAGE_WAIT_DELAY)
-    interact(driver, FLAGS.bot_username)
-
-    # Cleanup.
-    driver.quit()
-
-  except Exception as e:  # Any exception raised will skip this cycle.
-    logging.error(e)
-  finally:
-    logging.info('----------Cycle ended----------')
+        # Cleanup.
+        driver.quit()
+    except Exception as e:  # Any exception raised will skip this cycle.
+        logging.error(e)
+        # Flush the current page source for debugging.
+        error_file = datetime.now().strftime(r"%Y-%m-%d %H_%M_%S") + FLAGS.bot_username
+        with open(f"{FLAGS.path_to_error_log}/{error_file}.html", 'w') as f:
+            f.write(driver.page_source)
+    finally:
+        logging.info('----------Cycle ended----------')
 
 
 if __name__ == '__main__':
-  app.run(main)
+    app.run(main)

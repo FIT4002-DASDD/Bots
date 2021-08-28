@@ -23,6 +23,7 @@ def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
     """Returns a twitter timeline WebElement."""
     return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
+
 def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
     """Returns a twitter "Who to follow" sidebar WebElement."""
     return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
@@ -93,6 +94,7 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
         logging.info('No promoted tweet found.')
         return None
 
+
 def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, None]:
     logging.info('Searching sidebar for promoted follows...')
 
@@ -104,6 +106,7 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
         logging.info('No promoted follow found.')
         return None
 
+
 def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
@@ -111,14 +114,14 @@ def get_promoted_author(promoted_tweet: WebElement) -> str:
 
 def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
     """
-    This function can scrape tweet link for the promoted tweet, this is the link inside the tweeter
+    This function can scrape the link of a promoted tweet.
 
     Parameters:
         promoted_tweet: WebElement for the promoted tweet
         driver: web driver
 
     Returns:
-        tweet_link: tweet link for the promoted tweet, this is the link inside the tweeter
+        tweet_link: tweet link of the promoted tweet.
     """
     previous_url = driver.current_url
     try:
@@ -147,17 +150,18 @@ def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
 
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
     """
-    This function can scrape official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+    This function can scrape official link for the promoted tweet; this is the link which takes you outside Twitter
+    to the official website of the promoted Ad.
 
     Parameters:
         promoted_tweet: WebElement for the promoted tweet
 
-    Returns:
-        tweet_official_link: official link for the promoted tweet, this is the link which take you outside the tweeter and navigate you to the official website of the Ads
+    Returns: tweet_official_link: the official link present in the promoted Ad.
     """
     try:
         list_of_element = promoted_tweet.find_elements(By.XPATH,
-                                                       ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role = 'link']")
+                                                       ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role "
+                                                       "= 'link']")
         tweet_official_link = list_of_element[-1].get_attribute('href')
         logging.info("Official link scraped successfully: " + tweet_official_link)
     except Exception as e:
@@ -165,6 +169,7 @@ def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
         tweet_official_link = ""
         logging.info("Official link scrape failed")
     return tweet_official_link
+
 
 def get_promoted_follow(promoted_follow: WebElement) -> str:
     """
@@ -182,9 +187,10 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
         logging.info("Scraped promoted follow: " + handle)
     except Exception as e:
         print(e)
-        tweet_official_link = ""
+        handle = ""
         logging.info("Promoted follow handle scrape failed")
     return handle
+
 
 def get_promoted_follow_link(promoted_follow: WebElement) -> str:
     try:

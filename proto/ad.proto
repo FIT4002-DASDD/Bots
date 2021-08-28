@@ -6,22 +6,23 @@ import "google/protobuf/timestamp.proto";
 package dasdd.proto;
 
 message AdCollection {
-  repeated Ad ads = 1;
+  // The bot for which the Ads were found.
+  dasdd.proto.Bot bot = 1;
+  // The set of Ads found for the bot.
+  repeated Ad ads = 2;
 }
 
 message Ad {
-  // The bot for which the Ad was found.
-  dasdd.proto.Bot bot = 1;
   // The twitter handle of the promoted Ad.
-  string promoter_handle = 2;
+  string promoter_handle = 1;
   // The content contained within the promoted Ad.
-  string content = 3;
+  string content = 2;
   // A screenshot of the ad (image bytestring).
-  string screenshot = 4;
+  string screenshot = 3;
   // When the ad was scraped.
-  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp created_at = 4;
   // Link to the promoted Ad.
-  string seen_on = 6;
+  string seen_on = 5;
   // Link to the official website for promoted Ad.
-  string official_ad_link = 7;
+  string official_ad_link = 6;
 }

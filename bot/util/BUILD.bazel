@@ -1,0 +1,13 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@bot_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "dump_proto",
+    srcs = ["dump_proto.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//proto:ad_py_proto",
+        "//proto:bot_py_proto",
+        requirement("absl-py"),
+    ],
+)

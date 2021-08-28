@@ -9,8 +9,8 @@ Install Bazel: https://docs.bazel.build/versions/main/install-ubuntu.html
 
 ## Running the E2E workflow
 
-From the root of the project workspace, run the shell binary:
-`./workflow_start.sh`
+From the `scripts/` directory of the root project workspace, run the shell binary:
+`./run-bots.sh`
 
 This will spin up the bot workflow for all configured bots in the shell script in the **background**.
 
@@ -22,7 +22,7 @@ From the root of the project workspace, run: `bazel build //bot:app`
 
 There are several required flags to run the python binary. Please pass in the:
 
-```
+```shell
 --bot_username=<username of the bot to be run>
 --bot_password=<password of the bot to be run>
 --bot_output_directory=<full path to the directory where bot output will be stored>
@@ -34,7 +34,25 @@ Note: for the `--bot_output_directory` flag, please pass in the path to the `bot
 
 Call `bazel run`, passing in the flags discussed above:
 
-`bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out`
+```shell
+bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out
+```
+
+### Debugging Bot output
+
+The bots output results as serialized protocol buffer data (i.e. in binary format). This may be difficult to work with
+when debugging. As such a utility in the form of a `py_binary` is provided to dump serialized data to the console and to
+write out to a text proto.
+
+Simply pass the path to the serialized proto as a value to the flag `--serialized_proto` when running
+the `//bot/util:dump_proto` target. Example:
+
+```shell
+bazel run //bot/util:dump_proto -- --serialized_proto=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out/akshay1738_2021-08-28_out
+```
+
+This will dump the data out to the console as well as write to a `textproto` file with the same name in the same
+directory.
 
 ## Build Push Service
 

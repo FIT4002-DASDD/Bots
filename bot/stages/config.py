@@ -1,10 +1,10 @@
 """
 Module for app configuration.
 """
+from absl import flags
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as GeckoOptions
-from absl import flags
 
 FLAGS = flags.FLAGS
 
@@ -24,14 +24,14 @@ WEBDRIVER_OPTIONS = [
 
 
 def create_chromedriver() -> Chrome:
-  op = ChromeOptions()
-  for arg in WEBDRIVER_OPTIONS:
-    op.add_argument(arg)
-  return Chrome(executable_path=FLAGS.path_to_chromedriver, options=op)
+    op = ChromeOptions()
+    for arg in WEBDRIVER_OPTIONS:
+        op.add_argument(arg)
+    return Chrome(executable_path=FLAGS.path_to_chromedriver, options=op)
 
 
 def create_geckodriver() -> Firefox:
-  op = GeckoOptions()
-  for arg in WEBDRIVER_OPTIONS:
-    op.add_argument(arg)
-  return Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)
+    op = GeckoOptions()
+    for arg in WEBDRIVER_OPTIONS:
+        op.add_argument(arg)
+    return Firefox(executable_path=FLAGS.path_to_geckodriver, options=op)
