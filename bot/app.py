@@ -20,8 +20,7 @@ flags.DEFINE_string('bot_username', None, 'Pass in bot username (required)')
 flags.DEFINE_string('bot_password', None, 'Pass in bot password (required)')
 flags.DEFINE_string('bot_output_directory', None,
                     'Pass in directory for storing bot output (required)')
-flags.DEFINE_string('path_to_error_log', 'error_logging',
-                    'Pass in the path for error logging')
+flags.DEFINE_string('path_to_error_log', None, 'Pass in the path for error logging')
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
@@ -62,17 +61,19 @@ def _main():
         # Interact and Scrape.
         time.sleep(STAGE_WAIT_DELAY)
         interact(driver, FLAGS.bot_username)
-
-        # Cleanup.
-        driver.quit()
     except Exception as e:  # Any exception raised will skip this cycle.
         logging.error(e)
         # Flush the current page source for debugging.
-        error_file = datetime.now().strftime(r"%Y-%m-%d %H_%M_%S") + FLAGS.bot_username
-        with open(f"{FLAGS.path_to_error_log}/{error_file}.html", 'w') as f:
-            f.write(driver.page_source)
+        if FLAGS.path_to_error_log:
+            error_file = f'{FLAGS.path_to_error_log}/{FLAGS.bot_username}_' \
+                         f'{datetime.now().strftime(r"%Y-%m-%d %H_%M_%S")}.html'
+            with open(error_file, 'w') as f:
+                f.write(driver.page_source)
+            logging.info(f'Error file generated at: {error_file}')
     finally:
         logging.info('----------Cycle ended----------')
+        # Cleanup.
+        driver.quit()
 
 
 if __name__ == '__main__':
