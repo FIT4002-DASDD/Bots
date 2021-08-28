@@ -70,6 +70,6 @@ def verify_phone_number(driver: Union[Firefox, Chrome]) -> None:
         # Hit enter.
         phone_number.send_keys(Keys.RETURN)
         logging.info('Keyed in phone number for verification.')
-    except Exception as e:
-        print(e)
+    except:
+        # We didn't need to verify phone number, continue as normal.
         return

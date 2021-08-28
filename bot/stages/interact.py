@@ -60,7 +60,7 @@ def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
         dialog = driver.find_element_by_xpath("//div[@role='dialog']")
         dialog.find_element_by_xpath(".//div[@role='button']").click()
         logging.info("Policy update pop-up found and clicked.")
-    except Exception as e:
+    except:
         # No policy update found, continue as normal.
         return None
 
