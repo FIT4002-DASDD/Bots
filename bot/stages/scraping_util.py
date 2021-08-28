@@ -23,6 +23,10 @@ def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
     """Returns a twitter timeline WebElement."""
     return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
+def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
+    """Returns a twitter "Who to follow" sidebar WebElement."""
+    return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
+
 
 def take_element_screenshot(web_element: WebElement) -> str:
     """
@@ -89,6 +93,16 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
         logging.info('No promoted tweet found.')
         return None
 
+def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, None]:
+    logging.info('Searching sidebar for promoted follows...')
+
+    try:
+        promoted = sidebar.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
+        logging.info('Found a promoted follow.')
+        return promoted
+    except NoSuchElementException:
+        logging.info('No promoted follow found.')
+        return None
 
 def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
@@ -151,3 +165,32 @@ def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
         tweet_official_link = ""
         logging.info("Official link scrape failed")
     return tweet_official_link
+
+def get_promoted_follow(promoted_follow: WebElement) -> str:
+    """
+    Returns the twitter handle of an account promoted as a follow suggestion.
+
+    Parameters:
+        promoted_follow: WebElement for the promoted follow suggestion
+
+    Returns:
+        the handle of the promoted account as a string
+    """
+    try:
+        promoter = promoted_follow.find_element(By.XPATH, ".//*[contains(text(), '@')]")
+        handle = promoter.get_attribute('innerHTML')
+        logging.info("Scraped promoted follow: " + handle)
+    except Exception as e:
+        print(e)
+        tweet_official_link = ""
+        logging.info("Promoted follow handle scrape failed")
+    return handle
+
+def get_promoted_follow_link(promoted_follow: WebElement) -> str:
+    try:
+        link = promoted_follow.find_element(By.XPATH, ".//a").get_attribute('href')
+    except Exception as e:
+        print(e)
+        link = ""
+        logging.info("Follow link scrape failed")
+    return link
