@@ -12,9 +12,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.stages.scraping_util import wait_for_page_load
 
-import uuid
 import os
 import time
+from datetime import datetime
 
 FLAGS = flags.FLAGS
 TWITTER_LOGIN_URL = 'https://twitter.com/login'
@@ -26,7 +26,7 @@ ACCOUNT_PHONE_NUMBER = '+60162289138'
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
   if not _login(driver, username, password):
-    filename = str(uuid.uuid4())
+    filename = datetime.now().strftime(r"%Y-%m-%d %H_%M_%S") + username
     with open(f"{os.path.dirname(FLAGS.path_to_error_logging)}/{filename}.html", 'w') as file_:
       file_.write(driver.page_source)
       driver.quit()
