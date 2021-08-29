@@ -80,9 +80,10 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         refresh = False
 
         # NOTE: We must process found promoted content before refresh as the WebElement may no longer exist after.
-        # Process Promoted Follow. We treat promoted follows the same as promoted ads.
+        # Process Promoted Follow. We treat promoted follows similar to promoted tweets.
         if promoted_in_follow_sidebar:
             ad = ad_collection.ads.add()
+            ad.ad_type = ad_pb2.Ad.AdType.AD_TYPE_FOLLOW
             ad.promoter_handle = get_promoted_follow(promoted_in_follow_sidebar)
             ad.created_at.GetCurrentTime()
             ad.seen_on = get_promoted_follow_link(promoted_in_follow_sidebar)
@@ -92,6 +93,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         # Process Promoted Tweet.
         if promoted_in_timeline:
             ad = ad_collection.ads.add()
+            ad.ad_type = ad_pb2.Ad.AdType.AD_TYPE_TWEET
             ad.content = promoted_in_timeline.text
             ad.promoter_handle = get_promoted_author(promoted_in_timeline)
             ad.screenshot = take_element_screenshot(promoted_in_timeline)

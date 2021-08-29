@@ -3,8 +3,9 @@ Testing scraping util functionality.
 """
 from unittest import TestCase, main
 from unittest.mock import MagicMock, Mock
-from selenium.webdriver.common.by import By
+
 from absl import flags
+from selenium.webdriver.common.by import By
 
 from bot.stages.scraping_util import get_timeline, take_element_screenshot
 
