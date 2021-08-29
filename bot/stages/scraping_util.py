@@ -4,6 +4,8 @@ Ref: https://github.com/kautzz/twitter-problock
 """
 import time
 from typing import Union
+from datetime import datetime
+from uuid import uuid4
 
 from absl import flags
 from absl import logging
@@ -30,16 +32,17 @@ def take_element_screenshot(web_element: WebElement) -> str:
     If running in Debug mode, the PNG file is also saved to the bot's output directory.
     """
     if FLAGS.debug:
-        _take_screenshot_and_save_to_file(web_element)
-    return web_element.screenshot_as_base64
+        screenshot_filename = _take_screenshot_and_save_to_file(web_element)
+    return web_element.screenshot_as_base64, screenshot_filename
 
 
 def _take_screenshot_and_save_to_file(web_element: WebElement):
+    capture_time = datetime.now().strftime('%Y-%m-%d-%H:%M:%S---') + str(uuid4())
     global SCREENSHOT_COUNT
-    screenshot_filename = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
+    screenshot_filename = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{capture_time}.png'
     if web_element.screenshot(screenshot_filename):
         logging.info(f'Successfully captured screenshot: {screenshot_filename}')
-        SCREENSHOT_COUNT += 1
+    return f'{FLAGS.bot_username}_{capture_time}.png'
 
 
 def wait_for_page_load(driver: Union[Firefox, Chrome]) -> bool:

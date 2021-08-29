@@ -1,8 +1,11 @@
 """
 Module for defining the bot twitter interaction flow.
 """
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from typing import Union
+import json
+
+import os.path
 
 import proto.ad_pb2 as ad_pb2
 import proto.bot_pb2 as bot_pb2
@@ -22,10 +25,11 @@ from bot.stages.scraping_util import take_element_screenshot
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
-TARGET_AD_COUNT = 2
+TARGET_AD_COUNT = 50
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
+ad_collection_JSON = []
 
 # Tracks when the AdCollection was last written out.
 # Subtract one day so we write out on the first invocation.
@@ -64,17 +68,34 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
       bot.id = bot_username
 
       ad = ad_collection.ads.add()
+      ad_JSON = create_JSON_schema()
+
       ad.bot.id = bot.id
+      ad_JSON['botId'] = bot.id
+
       ad.content = promoted_in_timeline.text
-      ad.promoter_handle = get_promoted_author(promoted_in_timeline)
-      ad.screenshot = take_element_screenshot(promoted_in_timeline)
+      ad_JSON['content'] = promoted_in_timeline.text
+
+      promoter_handle = get_promoted_author(promoted_in_timeline)
+      ad.promoter_handle = promoter_handle
+      ad_JSON['promoter_handle'] = promoter_handle
+
+      screenshot = take_element_screenshot(promoted_in_timeline)
+      ad.screenshot = screenshot[0]
+      ad_JSON['screenshot'] = screenshot[1]
       # This sets the field:  https://stackoverflow.com/a/65138505/15507541
       ad.created_at.GetCurrentTime()
+      ad_JSON['created_at'] = str(datetime.now())
 
-      ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
-      ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
+      official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
+      ad.official_ad_link = official_ad_link
+      ad_JSON['official_ad_link'] = official_ad_link
 
+      seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
+      ad.seen_on = seen_on
+      ad_JSON['seen_on'] = seen_on
 
+      ad_collection_JSON.append(ad_JSON)
       refresh_page(driver)
     else:
       if not load_more_tweets(driver):
@@ -85,7 +106,22 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
   if _should_flush_ad_collection():
     logging.info('Writing out AdCollection as one day has elapsed.')
     _write_out_ad_collection()
+    _write_out_ad_collection_JSON()
 
+def create_JSON_schema():
+  """
+  Create a JSON schema for ads
+  """
+  ad_JSON_schema = {
+      "botId": "",
+      "promoter_handle": "",
+      "content": "",
+      "screenshot": "",
+      "created_at": "",
+      "seen_on": "",
+      "official_ad_link": "",
+    }
+  return ad_JSON_schema
 
 def _should_flush_ad_collection() -> bool:
   """
@@ -111,3 +147,20 @@ def _write_out_ad_collection():
 
     # Clear the ads.
     ad_collection.Clear()
+
+def _write_out_ad_collection_JSON():
+  location_csv = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out_JSON.csv'
+  location_json = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out_JSON.json'
+  # improve ---
+  if os.path.isfile(location_json):
+    try:
+      with open(location_json) as existingAds:
+        total_ads = json.load(existingAds)
+        total_ads = total_ads + ad_collection_JSON
+    except:
+      total_ads = ad_collection_JSON
+  else:
+    total_ads = ad_collection_JSON
+  with open(location_json, 'w') as outfile:
+    json.dump(total_ads, outfile)
+    logging.info("JSON write successfully")
