@@ -33,6 +33,45 @@ jobs:
       - run: echo $HOME
       - name: Building push service (--sandbox_writable_path needed because AWS SDK's CMake rules modify the Bazel sandbox)
         run: bazel build //push-service:all --sandbox_writable_path=/home/runner/.cache/bazel/
+
+  test_push_service:
+    name: Test Push Service
+    needs: build_push_service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Installing AWS SDK dependencies
+        run: sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
+      - name: Building push service
+        run: bazel build //push-service:all --sandbox_writable_path=/home/runner/.cache/bazel/
+      - name: Testing push service
+        run: bazel test $(bazel query //push-service/...) --test_output=all
+
+  deploy:
+    name: Deploy Bots and Push Service
+    needs:
+      - test_bots
+      - test_push_service
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+      - name: Create CodeDeploy Deployment
+        id: deploy
+        run: |
+          aws deploy create-deployment \
+            --application-name BotsApp \
+            --deployment-group-name BotsAppDG \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+
+# --------------- OLD ----------------------------
 #  build:
 #    name: Build Push Service
 #    runs-on: ubuntu-latest
