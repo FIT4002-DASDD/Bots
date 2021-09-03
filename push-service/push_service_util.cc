@@ -31,8 +31,8 @@ absl::StatusOr<bool> UploadAdCollection() {
   config.region = "ap-southeast-2";
 
   Aws::Auth::AWSCredentials credentials;
-  credentials.SetAWSAccessKeyId("AKIATEGVOVNXRPZEMTOT");
-  credentials.SetAWSSecretKey("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");
+  credentials.SetAWSAccessKeyId("xxxx");
+  credentials.SetAWSSecretKey("xxxx");
 
   Aws::S3::S3Client s3_client(credentials, config);
 
