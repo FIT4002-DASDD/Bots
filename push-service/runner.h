@@ -7,6 +7,6 @@ namespace dasdd {
 
 absl::StatusOr<bool> Run();
 
-} // namespace dasdd
+}  // namespace dasdd
 
 #endif  // PUSH_SERVICE_RUNNER_H_

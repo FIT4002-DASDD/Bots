@@ -6,9 +6,11 @@
 
 namespace dasdd {
 
-absl::StatusOr<bool>
-UploadAdCollection(const dasdd::proto::AdCollection &ad_collection);
+absl::StatusOr<bool> UploadAdCollection();
 
-} // namespace dasdd
+//absl::StatusOr<bool> UploadAdCollection(
+//    const dasdd::proto::AdCollection& ad_collection);
 
-#endif // PUSH_SERVICE_PUSH_SERVICE_UTIL_H_
+}  // namespace dasdd
+
+#endif  // PUSH_SERVICE_PUSH_SERVICE_UTIL_H_

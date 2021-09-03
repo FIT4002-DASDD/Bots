@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 cc_binary(
@@ -18,6 +18,7 @@ cc_library(
     srcs = ["runner.cc"],
     hdrs = ["runner.h"],
     deps = [
+        ":push_service_util",
         "@com_github_google_glog//:glog",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/status:statusor",
@@ -25,11 +26,32 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "push_service_util",
+    srcs = ["push_service_util.cc"],
+    hdrs = ["push_service_util.h"],
+    deps = [
+        ":aws_sdk_cpp",
+        "//proto:ad_cc_proto",
+        "//proto:bot_cc_proto",
+        "@com_google_absl//absl/status:statusor",
+    ],
+)
+
+cc_test(
+    name = "push_service_util_test",
+    srcs = ["push_service_util_test.cc"],
+    deps = [
+        ":push_service_util",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
 cmake(
     name = "aws_sdk_cpp",
     cache_entries = {
         "CMAKE_BUILD_TYPE": "Release",
-        "BUILD_ONLY": "s3;rds",
+        "BUILD_ONLY": "s3",
         "BUILD_SHARED_LIBS": "ON",  # Use dynamic libraries (.so) instead of static (.a)
         "ENABLE_TESTING": "OFF",
     },
@@ -38,6 +60,5 @@ cmake(
     out_shared_libs = [
         "libaws-cpp-sdk-core.so",
         "libaws-cpp-sdk-s3.so",
-        "libaws-cpp-sdk-rds.so",
     ],
 )

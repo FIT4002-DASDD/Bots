@@ -1,13 +1,14 @@
+#include "runner.h"
+
 #include <chrono>
 #include <thread>
 #include <vector>
 
-#include "glog/logging.h"
-#include "runner.h"
-
 #include "absl/base/attributes.h"
 #include "absl/flags/flag.h"
 #include "absl/strings/str_format.h"
+#include "glog/logging.h"
+#include "push_service_util.h"
 
 ABSL_FLAG(uint64_t, cycle_time_minutes, 1,
           "Set the time for which the Push Service cycle repeats");
@@ -15,7 +16,7 @@ ABSL_FLAG(uint64_t, cycle_time_minutes, 1,
 namespace dasdd {
 namespace {
 constexpr unsigned int kParallelThreadCount =
-    5; // Upto std::thread::hardware_concurrency() limit
+    5;  // Upto std::thread::hardware_concurrency() limit
 
 void PrintWelcomeText() {
   LOG(INFO) << "Running Push Service...";
@@ -51,7 +52,7 @@ ABSL_ATTRIBUTE_NORETURN void Dispatch() {
   }
 }
 
-} // namespace
+}  // namespace
 
 absl::StatusOr<bool> Run() {
   PrintWelcomeText();
@@ -61,4 +62,4 @@ absl::StatusOr<bool> Run() {
   return absl::OkStatus();
 }
 
-} // namespace dasdd
+}  // namespace dasdd
