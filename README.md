@@ -66,10 +66,8 @@ the `--sandbox_writable_path` flag:
 
 Example: `bazel build //push-service:main --sandbox_writable_path=/home/runner/.cache/bazel/`
 
-| :exclamation: **
-NOTE:** You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make
-changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this
-directory will be changed. | |-----------------------------------------|
+| :exclamation: ** NOTE:** You must specify the `--sandbox_writable_path` when building. It is necessary as the AWS SDK's CMake rules make changes to the Bazel sandbox (which Bazel does not really like) - so this way we tell Bazel to expect that this directory will be changed. |
+|-----------------------------------------|
 
 ### Building the AWS C++ SDK From Source
 
@@ -83,10 +81,10 @@ the [Git repo](https://github.com/aws/aws-sdk-cpp), execute the following:
 1. Install dependencies: `sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`
 2. Recursively clone the repo: `git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp`
 3. Create an out-of-source build directory: `mkdir build`
-4.
-
-Run: `cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="s3;rds" -DBUILD_SHARED_LIBS=ON -DENABLE_TESTING=OFF`
-
+4. Run:
+   ```bash
+   cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="s3;rds" -DBUILD_SHARED_LIBS=ON -DENABLE_TESTING=OFF
+   ```
 5. Run: `make && make install`
 
 ## Push Service Usage
