@@ -38,6 +38,12 @@ Call `bazel run`, passing in the flags discussed above:
 bazel run //bot:app -- --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out
 ```
 
+Or, alternatively, after building the `py_binary` target, execute it:
+
+```shell
+./bazel-bin/bot/app --bot_username=Allison45555547 --bot_password=A2IHNDjPu23SNEjfy4ts --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out
+```
+
 ### Debugging Bot output
 
 The bots output results as serialized protocol buffer data (i.e. in binary format). This may be difficult to work with
