@@ -144,8 +144,6 @@ def _write_out_ad_collection():
 
 def like_post(driver: Chrome, bot_username: str) -> None:
     """Function to like tweets that contain keywords specified in bot_info.py"""
-
-    tags_to_include = get_bot(bot_username)['relevant_tags']
     count = 0
     while count < TARGET_SCROLL_COUNT:
         try:
@@ -153,9 +151,9 @@ def like_post(driver: Chrome, bot_username: str) -> None:
                 '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
             for element in range(0, len(contents_and_likes), 4):
                 try:
-                    if any(tag in contents_and_likes[element].text for tag in tags_to_include):
+                    if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
                         xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
-                                          f'::div[4]//div[@data-testid="like"] '
+                                          f'::div[4]//div[@data-testid="like"]'
                         like_button = driver.find_element_by_xpath(xpath_with_text)
                         like_button.click()
                 except exceptions.StaleElementReferenceException as e:
@@ -172,27 +170,27 @@ def like_post(driver: Chrome, bot_username: str) -> None:
 
 def retweet_posts(driver: Chrome, bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
-    followed_accounts = get_bot(bot_username)['followed_accounts']
+    for account in get_bot(bot_username, 'ACCOUNTS'):
+        if visit_account(driver, account):
+            buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
+            iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
+            for i in range(iterate):
+                buttons_to_retweet[i].click()
 
-    for account in followed_accounts:
-        visit_account(driver, account)
-        buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
-        iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
-        for i in range(iterate):
-            buttons_to_retweet[i].click()
+                # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                try:
+                    driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                except Exception as e:
+                    continue
 
-            # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
-            try:
-                driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-            except Exception as e:
-                continue
-
-            time.sleep(2)
-        time.sleep(5)
+                time.sleep(2)
+            time.sleep(5)
+        else:
+            logging.error("Account visit failed.")
 
     return None
 
-def get_bot(bot_username: str) -> object:
+def get_bot(bot_username: str, info: str) -> list:
     bot = {}
     try:
         count = 0
@@ -203,17 +201,20 @@ def get_bot(bot_username: str) -> object:
             else:
                 bot = bots[count]
                 found = True
-        return bot
+        if info == 'TAGS':
+            return bot['relevant_tags']
+        elif info == 'ACCOUNTS':
+            return bot['followed_accounts']
     except:
         logging.error("Bot does not exist in bot_info.py")
         return bot
 
 def visit_account(driver: Chrome, followed_account: str) -> bool:
-    """TBD."""
+    """Function to visit a Twitter account page."""
     try:
         profile_url = 'https://twitter.com/' + followed_account
         driver.get(profile_url)
-
+        time.sleep(3)
         if wait_for_page_load(driver):
             logging.info('Successfully visited account : ' + followed_account)
             return True

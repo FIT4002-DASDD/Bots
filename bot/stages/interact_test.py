@@ -2,7 +2,7 @@
 Testing interact functionality.
 """
 from unittest import TestCase, main
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch, Mock
 
 from bot.stages.interact import interact, agree_to_policy_updates_if_exists, like_post, retweet_posts, visit_account
 
@@ -48,12 +48,28 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
         self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
 
+    @patch('bot.stages.interact.get_bot', return_value=['#conservative','#trump'])
+    @patch('bot.stages.scraping_util.load_more_tweets', return_value=True)
+    @patch('bot.stages.scraping_util.wait_for_page_load', return_value=True)
+    def test_like_post(self, mock_get_bot, mock_load_more_tweets, mock_wait_for_page_load):
+        username = 'fakeusername'
+        mock_tweet = Mock(text='hello #trump')
+        self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
+        result = like_post(self.mock_driver, username)
+        self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
+        self.mock_driver.find_element_by_xpath.assert_called_with('//span[contains(text(),"hello #trump")]//ancestor::div[4]//div[@data-testid="like"]')
+        self.assertEqual(None, result)
 
-    def test_like_post(self):
-        pass
-
-    def test_retweet_posts(self):
-        pass
+    @patch('bot.stages.interact.get_bot', return_value=['@democracynow','@IlhanMN'])
+    @patch('bot.stages.interact.visit_account', return_value=True)
+    def test_retweet_posts(self, mock_get_bot, mock_visit_account):
+        username = 'fakeusername'
+        mock_tweet = Mock()
+        self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
+        result = retweet_posts(self.mock_driver, username)
+        self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
+        self.mock_driver.find_element_by_xpath.assert_called_with('//div[@data-testid="retweetConfirm"]')
+        self.assertEqual(None, result)
 
     def test_visit_account(self):
         pass
