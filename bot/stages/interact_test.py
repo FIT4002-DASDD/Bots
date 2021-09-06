@@ -43,7 +43,11 @@ class InteractTest(TestCase):
         pass
 
     def test_agree_to_policy_updates_if_exists(self):
-        pass
+        self.mock_driver.find_element_by_xpath.return_value = None
+        result = agree_to_policy_updates_if_exists(self.mock_driver)
+        self.assertEqual(None, result)
+        self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
+
 
     def test_like_post(self):
         pass

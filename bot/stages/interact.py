@@ -52,6 +52,8 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
+    like_post(driver, bot_username)
+    retweet_posts(driver, bot_username)
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -141,20 +143,9 @@ def _write_out_ad_collection():
 
 
 def like_post(driver: Chrome, bot_username: str) -> None:
-    """TBD."""
-    bot = None
-    try:
-        count = 0
-        found = False
-        while not found:
-            if bot_username != bots[0]['username']:
-                count += 1
-            bot = bots[count]
-            found = True
-    except:
-        logging.error("Bot does not exist in bot_info.py")
+    """Function to like tweets that contain keywords specified in bot_info.py"""
 
-    tags_to_include = bot['relevant_tags']
+    tags_to_include = get_bot(bot_username)['relevant_tags']
     count = 0
     while count < TARGET_SCROLL_COUNT:
         try:
@@ -179,22 +170,9 @@ def like_post(driver: Chrome, bot_username: str) -> None:
 
     return None
 
-
 def retweet_posts(driver: Chrome, bot_username: str) -> None:
-    """TBD."""
-    bot = None
-    try:
-        count = 0
-        found = False
-        while not found:
-            if bot_username != bots[0]['username']:
-                count += 1
-            bot = bots[count]
-            found = True
-    except:
-        logging.error("Bot does not exist in bot_info.py")
-
-    followed_accounts = bot['followed_accounts']
+    """Function to retweet posts from followed accounts."""
+    followed_accounts = get_bot(bot_username)['followed_accounts']
 
     for account in followed_accounts:
         visit_account(driver, account)
@@ -214,6 +192,21 @@ def retweet_posts(driver: Chrome, bot_username: str) -> None:
 
     return None
 
+def get_bot(bot_username: str) -> object:
+    bot = {}
+    try:
+        count = 0
+        found = False
+        while not found:
+            if bot_username != bots[count]['username']:
+                count += 1
+            else:
+                bot = bots[count]
+                found = True
+        return bot
+    except:
+        logging.error("Bot does not exist in bot_info.py")
+        return bot
 
 def visit_account(driver: Chrome, followed_account: str) -> bool:
     """TBD."""

@@ -54,7 +54,12 @@ class ScrapingUtilTest(TestCase):
         self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//div[@data-testid='primaryColumn']")
 
     def test_get_follow_sidebar(self):
-        pass
+        mock_sidebar = Mock()
+        self.mock_driver.find_element.return_value = mock_sidebar
+        result = get_follow_sidebar(self.mock_driver)
+        self.assertEqual(mock_sidebar, result)
+        self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//aside[@aria-label='Who to follow']")
+
 
     def test_take_element_screenshot(self):
         fake_screenshot_bytestring = b'\x89PNG\r\n\x1a\n'
