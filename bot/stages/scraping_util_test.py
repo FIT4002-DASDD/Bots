@@ -59,7 +59,7 @@ class ScrapingUtilTest(TestCase):
     def test_take_element_screenshot(self):
         fake_screenshot_bytestring = b'\x89PNG\r\n\x1a\n'
         mock_element = Mock()
-        mock_element.screenshot_as_base64 = fake_screenshot_bytestring
+        mock_element.screenshot_as_png = fake_screenshot_bytestring
         result = take_element_screenshot(mock_element)
         self.assertEqual(result, fake_screenshot_bytestring)
 
@@ -67,7 +67,7 @@ class ScrapingUtilTest(TestCase):
         self.flags.debug = True
         fake_screenshot_bytestring = b'\x89PNG\r\n\x1a\n'
         mock_element = Mock()
-        mock_element.screenshot_as_base64 = fake_screenshot_bytestring
+        mock_element.screenshot_as_png = fake_screenshot_bytestring
         result = take_element_screenshot(mock_element)
         self.assertEqual(result, fake_screenshot_bytestring)
         mock_element.screenshot.assert_called_once()
