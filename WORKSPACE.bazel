@@ -120,4 +120,12 @@ new_git_repository(
     remote = "https://github.com/aws/aws-sdk-cpp",
     shallow_since = "1628277923 +0000",
 )
+
+new_git_repository(
+    name = "libpqxx",
+    build_file_content = _ALL_CONTENT,
+    commit = "5fe041dd185d808f98df8327a583f1a55fccc15f",
+    remote = "https://github.com/jtv/libpqxx",
+    shallow_since = "1629216311 +0200",
+)
 # ***** END CC *****

@@ -1,0 +1,17 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "connection_manager",
+    srcs = ["connection_manager.cc"],
+    hdrs = ["connection_manager.h"],
+    linkopts = ["-lpq"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//push-service:aws_sdk_cpp",
+        "//push-service:libpqxx",
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/base",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings:str_format",
+    ],
+)

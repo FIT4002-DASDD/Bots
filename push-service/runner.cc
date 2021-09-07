@@ -1,6 +1,7 @@
 #include "runner.h"
 
 #include <chrono>
+#include <fstream>
 #include <thread>
 #include <vector>
 
@@ -8,13 +9,22 @@
 #include "absl/flags/flag.h"
 #include "absl/strings/str_format.h"
 #include "glog/logging.h"
-#include "push_service_util.h"
+#include "pqxx/pqxx"
+#include "proto/ad.pb.h"
+#include "push-service/connection/connection_manager.h"
+#include "push-service/push_service_util.h"
 
-ABSL_FLAG(uint64_t, cycle_time_minutes, 1,
+ABSL_FLAG(uint64_t, cycle_time_minutes, 5,
           "Set the time for which the Push Service cycle repeats");
+
+ABSL_FLAG(std::string, bot_output_directory, "",
+          "Pass in the path to the bot output proto directory.");
 
 namespace dasdd {
 namespace {
+using ::dasdd::proto::AdCollection;
+
+// To be used when implementing thread pool.
 constexpr unsigned int kParallelThreadCount =
     5;  // Upto std::thread::hardware_concurrency() limit
 
@@ -24,29 +34,28 @@ void PrintWelcomeText() {
                                kParallelThreadCount);
 }
 
-void Handler() {
-  LOG(INFO) << "Thread id: " << std::this_thread::get_id();
-
-  // Read the files n' extract the data
-  // read()
-  // Dispatch the data to AWS RDS
-  // OR... buffer the dispatch.. e.g. in a vector so as to avoid several cycles
-  // (will need locking around a std::vector?) dispatch()
-}
-
 ABSL_ATTRIBUTE_NORETURN void Dispatch() {
-  std::vector<std::thread> threads;
   while (true) {
-    for (unsigned int i = 0; i < kParallelThreadCount; i++) {
-      std::thread t(Handler);
-      threads.push_back(std::move(t));
-    }
-    for (std::thread &t : threads) {
-      t.join();
-    }
+    ConnectionManager cm;
 
+    std::vector<std::string> proto_paths = GetAllPathsToProtosInDirectory(
+        absl::GetFlag(FLAGS_bot_output_directory));
+    for (const std::string& path : proto_paths) {
+      if (cm.rds_connection()) {
+        std::ifstream ifstream(path, std::ios::in | std::ios::binary);
+        AdCollection ad_collection;
+        ad_collection.ParseFromIstream(&ifstream);
+        auto upload_status = UploadAdCollection(ad_collection, cm.s3_client(),
+                                                *cm.rds_connection());
+        if (!upload_status.ok()) {
+          LOG(ERROR) << "Unable to upload this AdCollection.";
+        } else {
+          // We're done with uploading the current proto; it can be deleted.
+          std::filesystem::remove(path);
+        }
+      }
+    }
     LOG(INFO) << "Cycle finished. Sleeping until next cycle starts...";
-    threads.clear();
     std::this_thread::sleep_for(
         std::chrono::minutes(absl::GetFlag(FLAGS_cycle_time_minutes)));
   }
@@ -59,7 +68,7 @@ absl::StatusOr<bool> Run() {
 
   Dispatch();
 
-  return absl::OkStatus();
+  return true;
 }
 
 }  // namespace dasdd

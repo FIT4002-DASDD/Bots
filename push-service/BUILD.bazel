@@ -1,5 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
-load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "configure_make")
 
 cc_binary(
     name = "main",
@@ -19,6 +19,7 @@ cc_library(
     hdrs = ["runner.h"],
     deps = [
         ":push_service_util",
+        "//push-service/connection:connection_manager",
         "@com_github_google_glog//:glog",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/status:statusor",
@@ -30,11 +31,15 @@ cc_library(
     name = "push_service_util",
     srcs = ["push_service_util.cc"],
     hdrs = ["push_service_util.h"],
+    linkopts = ["-lpq"],
     deps = [
         ":aws_sdk_cpp",
+        ":libpqxx",
         "//proto:ad_cc_proto",
         "//proto:bot_cc_proto",
-        "@com_google_absl//absl/status:statusor",
+        "@com_github_google_glog//:glog",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings:str_format",
     ],
 )
 
@@ -49,6 +54,7 @@ cc_test(
 
 cmake(
     name = "aws_sdk_cpp",
+    build_args = ["-j4"],  # Make it faster by using more processes.
     cache_entries = {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_ONLY": "s3",
@@ -61,4 +67,20 @@ cmake(
         "libaws-cpp-sdk-core.so",
         "libaws-cpp-sdk-s3.so",
     ],
+    visibility = ["//visibility:public"],
+)
+
+configure_make(
+    name = "libpqxx",
+    args = [
+        "-j4",  # Make it faster by using more processes.
+    ],
+    configure_options = [
+        "--disable-documentation",
+    ],
+    lib_source = "@libpqxx//:all_srcs",
+    out_static_libs = [
+        "libpqxx.a",
+    ],
+    visibility = ["//visibility:public"],
 )
