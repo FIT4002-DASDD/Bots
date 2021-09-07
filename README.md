@@ -65,7 +65,11 @@ directory.
 First install the AWS C++ SDK's dependencies by following
 the [official docs](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/setup-linux.html):
 
-`sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`
+`sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev`.
+
+Next install dependencies needed by libpqxx (a C++ Postgres binding), which should include installing Postgres
+and `libpq` via a simple command such as: `sudo apt-get install -y libpq-dev`. See
+this [repo](https://github.com/aksh0001/libpqxx-bazel) for more details.
 
 Call `bazel build` on the `//push-service:main` target, specifying the full path to the Bazel cache directory in
 the `--sandbox_writable_path` flag:
@@ -95,6 +99,32 @@ the [Git repo](https://github.com/aws/aws-sdk-cpp), execute the following:
 
 ## Push Service Usage
 
-Call `bazel run` as follows:
+There are several environment variables, including secrets, needed to make it work. Please set the following:
 
-`bazel run //push-service:main`
+```shell
+# AWS RDS/Postgres variables:
+export DB_HOST=<hostname of the db>
+export DB_PORT=<port on which the db is listening on>
+export DB_NAME=<name of the db>
+export DB_USERNAME=<username to log into the db>
+export DB_PASSWORD=<password to log into the db>
+# AWS S3 variables:
+export AWS_REGION=<region of bucket>
+export AWS_ACCESS_KEY_ID=<aws access key id of an IAM user with appropriate permissions> 
+export AWS_SECRET_KEY=<aws secret key of an IAM user with appropriate permissions>
+```
+
+In order for the Push Service to read generated Ad protocol buffer binaries from the bots, it needs to know where they
+are stored. Pass the directory containing these protos as a `--bot_output_directory` flag to the binary.
+
+To run it, call `bazel run` as follows:
+
+```shell
+bazel run //push-service:main -- --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out
+```
+
+Or, alternatively, after building the `cc_binary` target, execute it:
+
+```shell
+./bazel-bin/push-service/main --bot_output_directory=/home/akshay/Desktop/Uni/FIT4002/FIT4002-DASDD-Bots/bot_out
+```
