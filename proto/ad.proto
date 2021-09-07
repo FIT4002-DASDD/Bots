@@ -18,7 +18,7 @@ message Ad {
   // The content contained within the promoted Ad.
   string content = 2;
   // A screenshot of the Ad (image bytestring).
-  string screenshot = 3;
+  bytes screenshot = 3;
   // When the Ad was scraped.
   google.protobuf.Timestamp created_at = 4;
   // Link to the promoted Ad.

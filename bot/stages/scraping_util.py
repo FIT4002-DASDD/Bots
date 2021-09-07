@@ -31,12 +31,12 @@ def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
 
 def take_element_screenshot(web_element: WebElement) -> str:
     """
-    Screenshots a given WebElement, returning it as a base-64 string.
+    Screenshots a given WebElement, returning it as a PNG bytestring.
     If running in Debug mode, the PNG file is also saved to the bot's output directory.
     """
     if FLAGS.debug:
         _take_screenshot_and_save_to_file(web_element)
-    return web_element.screenshot_as_base64
+    return web_element.screenshot_as_png
 
 
 def _take_screenshot_and_save_to_file(web_element: WebElement):
