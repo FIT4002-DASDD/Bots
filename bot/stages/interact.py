@@ -51,7 +51,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    _scrape(driver, bot_username)
+    # _scrape(driver, bot_username)
     like_post(driver, bot_username)
     retweet_posts(driver, bot_username)
 
@@ -191,6 +191,7 @@ def retweet_posts(driver: Chrome, bot_username: str) -> None:
     return None
 
 def get_bot(bot_username: str, info: str) -> list:
+    """Function to get bot info from bot_info.py."""
     bot = {}
     try:
         count = 0

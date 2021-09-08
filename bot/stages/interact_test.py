@@ -4,7 +4,7 @@ Testing interact functionality.
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch, Mock
 
-from bot.stages.interact import interact, agree_to_policy_updates_if_exists, like_post, retweet_posts, visit_account
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists, like_post, retweet_posts, visit_account, get_bot
 
 
 class InteractTest(TestCase):
@@ -72,6 +72,9 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
 
     def test_visit_account(self):
+        pass
+
+    def test_get_bot(self):
         pass
 
 

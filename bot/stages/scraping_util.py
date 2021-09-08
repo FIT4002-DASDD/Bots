@@ -75,13 +75,11 @@ def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
     return wait_for_page_load(driver)
 
-
 def refresh_page(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Refreshing page...')
 
     driver.refresh()
     return wait_for_page_load(driver)
-
 
 def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement, None]:
     logging.info('Searching timeline for promoted tweets...')
@@ -94,7 +92,6 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
         logging.info('No promoted tweet found.')
         return None
 
-
 def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, None]:
     logging.info('Searching sidebar for promoted follows...')
 
@@ -106,11 +103,9 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
         logging.info('No promoted follow found.')
         return None
 
-
 def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
-
 
 def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
     """
