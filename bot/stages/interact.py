@@ -13,7 +13,7 @@ from selenium.common import exceptions
 from selenium.webdriver import Chrome, Firefox
 
 from bot.stages.bot_info import bots
-from bot.stages.scraping_util import get_follow_sidebar
+from bot.stages.scraping_util import get_follow_sidebar,get_contents_and_likes
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
 from bot.stages.scraping_util import get_promoted_follow_link
@@ -51,9 +51,8 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    # _scrape(driver, bot_username)
-    like_post(driver, bot_username)
     retweet_posts(driver, bot_username)
+    _scrape(driver, bot_username)
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -65,7 +64,6 @@ def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     except:
         # No policy update found, continue as normal.
         return None
-
 
 def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     """Scrapes the bot's timeline for Promoted content."""
@@ -79,7 +77,19 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
+
+        contents_and_likes = get_contents_and_likes(driver)
         refresh = False
+
+        for element in range(0, len(contents_and_likes), 4):
+            try:
+                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
+                    xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
+                                        f'::div[4]//div[@data-testid="like"]'
+                    like_button = driver.find_element_by_xpath(xpath_with_text)
+                    like_button.click()
+            except exceptions.StaleElementReferenceException as e:
+                continue
 
         # NOTE: We must process found promoted content before refresh as the WebElement may no longer exist after.
         # Process Promoted Follow. We treat promoted follows similar to promoted tweets.
@@ -141,34 +151,7 @@ def _write_out_ad_collection():
         # Clear the ads.
         ad_collection.Clear()
 
-
-def like_post(driver: Chrome, bot_username: str) -> None:
-    """Function to like tweets that contain keywords specified in bot_info.py"""
-    count = 0
-    while count < TARGET_SCROLL_COUNT:
-        try:
-            contents_and_likes = driver.find_elements_by_xpath(
-                '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
-            for element in range(0, len(contents_and_likes), 4):
-                try:
-                    if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
-                        xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
-                                          f'::div[4]//div[@data-testid="like"]'
-                        like_button = driver.find_element_by_xpath(xpath_with_text)
-                        like_button.click()
-                except exceptions.StaleElementReferenceException as e:
-                    continue
-
-            load_more_tweets(driver)
-            count += 1
-
-        except Exception as e:
-            count += 1
-            continue
-
-    return None
-
-def retweet_posts(driver: Chrome, bot_username: str) -> None:
+def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
     for account in get_bot(bot_username, 'ACCOUNTS'):
         if visit_account(driver, account):
