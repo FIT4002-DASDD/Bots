@@ -13,7 +13,7 @@ from selenium.common import exceptions
 from selenium.webdriver import Chrome, Firefox
 
 from bot.stages.bot_info import bots
-from bot.stages.scraping_util import get_follow_sidebar,get_contents_and_likes
+from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
 from bot.stages.scraping_util import get_promoted_follow_link
@@ -26,6 +26,7 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.scraping_util import get_contents_and_likes
 
 FLAGS = flags.FLAGS
 
@@ -34,8 +35,6 @@ TARGET_AD_COUNT = 2
 
 # This is just an aim for how many tweets to retweet
 TARGET_RETWEET_COUNT = 3
-# This is just an aim for how many times to load more tweets by scrolling down the page
-TARGET_SCROLL_COUNT = 10
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -51,8 +50,8 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     Ideas (TBD):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
-    retweet_posts(driver, bot_username)
     _scrape(driver, bot_username)
+    retweet_posts(driver, bot_username)
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -77,10 +76,10 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
-
         contents_and_likes = get_contents_and_likes(driver)
         refresh = False
 
+        # Process tweets to find for tweets that have certain keywords for liking
         for element in range(0, len(contents_and_likes), 4):
             try:
                 if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
