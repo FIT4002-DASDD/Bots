@@ -15,7 +15,7 @@ flags.DEFINE_string('path_to_geckodriver',
 
 WEBDRIVER_OPTIONS = [
     '--disable-blink-features=AutomationControlled',
-    # '--headless',
+    '--headless',
     '--no-sandbox',
     '--disable-gpu',
     '--window-size=1280x720',

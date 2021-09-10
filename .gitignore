@@ -11,3 +11,4 @@ bazel*
 bot_out
 error_logging
 .clwb
+geckodriver.log

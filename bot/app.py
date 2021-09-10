@@ -32,9 +32,9 @@ flags.mark_flags_as_required(['bot_username', 'bot_password', 'bot_output_direct
 def main(argv):
     del argv  # Unused.
     _main()
-    while True:
-        run_pending()
-        time.sleep(1)
+    # while True:
+    #     run_pending()
+    #     time.sleep(1)
 
 
 # Wait before start of each stage.
