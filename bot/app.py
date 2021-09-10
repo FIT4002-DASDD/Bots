@@ -32,9 +32,6 @@ flags.mark_flags_as_required(['bot_username', 'bot_password', 'bot_output_direct
 def main(argv):
     del argv  # Unused.
     _main()
-    # while True:
-    #     run_pending()
-    #     time.sleep(1)
 
 
 # Wait before start of each stage.
@@ -44,8 +41,6 @@ STAGE_WAIT_DELAY = 5
 SHORT_WAIT = 3
 
 
-# Bot flow should run periodically.
-@repeat(every().hour)
 def _main():
     logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
     # Create the driver.

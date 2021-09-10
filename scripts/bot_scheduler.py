@@ -2,11 +2,16 @@ import subprocess
 import shlex
 import time
 from multiprocessing.pool import ThreadPool
+import multiprocessing
 import os
 import csv
 
+# Time in seconds between schedule cycles
+# A complete schedule cycle means that *each* bot has completed its own cycle
 SLEEP_TIME = 3600
-CONCURRENT_BOTS = 2
+
+# Number of concurrent bots / worker threads
+CONCURRENT_BOTS = multiprocessing.cpu_count()
 
 def call_proc(cmd):
     """ This runs in a separate thread. """
