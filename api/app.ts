@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (_, res) => {
-  res.status(200).send();
+  res.status(200).send("server running");
 });
 
 app.get("/start-all-bots", (_, res) => {
@@ -29,7 +29,7 @@ app.get("/start-all-bots", (_, res) => {
       console.log(`stdout: ${stdout}`);
     }
   );
-  res.status(200).send("server running");
+  res.status(200).send();
 });
 
 app.listen(port, () => console.log(`Running on port ${port}`));
