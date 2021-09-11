@@ -13,6 +13,18 @@ SLEEP_TIME = 3600
 # Number of concurrent bots / worker threads
 CONCURRENT_BOTS = multiprocessing.cpu_count()
 
+# Directory of this script file
+DIRNAME = os.path.dirname(os.path.realpath(__file__))
+
+# Path to bot binary file 
+BOT_BIN_PATH = f"{DIRNAME}/../bazel-bin/bot/app"
+
+# Bot output and logs
+BOT_OUTPUT_DIR = f"{DIRNAME}/../bot_out"
+
+# Path to csv file with bot info
+BOT_CSV_PATH = f"{DIRNAME}/bot-info.csv"
+
 def call_proc(cmd):
     """ This runs in a separate thread. """
     p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -34,25 +46,33 @@ def read_bot_csv(bot_file_dir):
 def main():
     # multiprocessing logic based on this answer: https://stackoverflow.com/a/25120960
     pool = ThreadPool(CONCURRENT_BOTS)
-    FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-    BAZEL_BOT_BIN = f"{FILE_PATH}/../bazel-bin/bot/app"
-    BOT_OUTPUT_DIR = f"{FILE_PATH}/../bot_out"
-    BOT_CSV_DIR = f"{FILE_PATH}/bot-info.csv"
-
-    bots = read_bot_csv(BOT_CSV_DIR)
+    bots = read_bot_csv(BOT_CSV_PATH)
 
     cmd_list = []
     for bot in bots:
-        cmd_list.append(f"{BAZEL_BOT_BIN} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}'")
+        cmd_list.append(f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}'")
 
+    results = []
     for i in range(len(cmd_list)):
-        print(cmd_list[i])
-        pool.apply_async(call_proc, (cmd_list[i],))
+        results.append(pool.apply_async(call_proc, (cmd_list[i],)))
 
     # Close the pool and wait for each running task to complete
     pool.close()
     pool.join()
     print("All bots have finished their cycles")
+    print("Writing log files")
+    for result, bot in zip(results, bots):
+        out, err = result.get()
+        filename = f"{BOT_OUTPUT_DIR}/{bot['username']}_{time.time()}.log"
+        out = out.decode('utf-8')  
+        err = err.decode('utf-8')        
+        print(out)
+        with open(filename, "w") as file:
+            # Writing data to a file
+            file.write("STDOUT:\n")
+            file.write(f"{str(out)}\n")
+            file.write("STDERR:\n")
+            file.write(f"{str(err)}\n")
 
 if (__name__ == "__main__"):
     while True:
