@@ -89,5 +89,12 @@ bots = [
             '#BernieSanders',
             'alexandria ocasio cortez'
         ]
+    },
+    {
+        'username': 'AgnesSursula',
+        'password': 'OQCtrUUpGCzfa1HyOhhZ',
+        'phone_number': '',
+        'followed_accounts': [],
+        'relevant_tags': []
     }
 ]

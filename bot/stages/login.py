@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
+from bot.stages.bot_info import bots
 from bot.stages.scraping_util import wait_for_page_load
 
 FLAGS = flags.FLAGS
@@ -43,7 +43,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
 
         # Pass phone number in for verification
         time.sleep(VERIFICATION_WAIT)
-        verify_phone_number(driver)
+        verify_phone_number(driver, username)
 
         if wait_for_page_load(driver):
             logging.info('Successfully logged in.')
@@ -55,11 +55,20 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
         return False
 
 
-def verify_phone_number(driver: Union[Firefox, Chrome]) -> None:
+def verify_phone_number(driver: Union[Firefox, Chrome], username: str) -> None:
     """Key-in phone number if phone number verification is presented."""
     try:
+        bot_info = None
+        for bot in bots:
+            if username == bot['username']:
+                bot_info = bot
+                break
+        if bot_info is None:
+            logging.error("Bot does not exist in bot_info.py")
+            return
+        phone_number = bot_info['phone_number']
         # To ensure that the verification required is phone number verification.
-        hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
+        hint = driver.find_element_by_xpath(f"//strong[contains(text(), 'Your phone number ends in {phone_number[-2:]}')]")
 
         # Find the element to fill the phone number detail.
         phone_number = driver.find_element_by_name('challenge_response')
