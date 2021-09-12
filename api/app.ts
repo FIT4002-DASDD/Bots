@@ -14,11 +14,11 @@ app.get("/", (_, res) => {
 });
 
 app.get("/start-all-bots", (_, res) => {
-console.log('starting bots');
+  console.log("starting bots");
   exec(
     "./scripts/start_server.sh",
     { cwd: "/root/Bots" },
-    (error, stdout, stderr) => {
+    async (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);
         return;
@@ -30,6 +30,7 @@ console.log('starting bots');
       console.log(`stdout: ${stdout}`);
     }
   );
+  console.log("bots running in background");
   res.status(200).send();
 });
 
