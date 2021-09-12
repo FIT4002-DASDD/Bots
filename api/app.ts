@@ -16,8 +16,8 @@ app.get("/", (_, res) => {
 app.get("/start-all-bots", (_, res) => {
 console.log('starting bots');
   exec(
-    "./start_server.sh",
-    { cwd: "/root/Bots/scripts" },
+    "./scripts/start_server.sh",
+    { cwd: "/root/Bots" },
     (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);
