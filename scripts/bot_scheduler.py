@@ -5,8 +5,8 @@ from multiprocessing.pool import ThreadPool
 import multiprocessing
 import os
 import csv
-import sys
 from datetime import datetime
+
 # Time in seconds between schedule cycles
 # A complete schedule cycle means that *each* bot has completed its own cycle
 SLEEP_TIME = 3600
@@ -23,6 +23,7 @@ BOT_BIN_PATH = f"{DIRNAME}/../bazel-bin/bot/app"
 # Bot output and logs
 BOT_OUTPUT_DIR = f"{DIRNAME}/../bot_out"
 LOG_DIR = f"{BOT_OUTPUT_DIR}/logs"
+
 # Path to csv file with bot info
 BOT_CSV_PATH = f"{DIRNAME}/bot-info.csv"
 
@@ -37,7 +38,6 @@ def call_proc(cmd, bot):
     if not os.path.exists(log_dir): 
         os.makedirs(log_dir)
 
-    # 1 log file per bot per hour
     filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%d%m%Y')}_{timestamp}.log"
     with open(filename, 'a') as f:
         f.write(f"--------------------{current_time.strftime('%d/%m/%Y %H:%M:%S')}--------------------\n")
