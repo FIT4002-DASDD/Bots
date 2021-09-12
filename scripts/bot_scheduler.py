@@ -1,6 +1,7 @@
 import subprocess
 import shlex
 import time
+from datetime import datetime
 from multiprocessing.pool import ThreadPool
 import multiprocessing
 import os
@@ -8,7 +9,7 @@ import csv
 
 # Time in seconds between schedule cycles
 # A complete schedule cycle means that *each* bot has completed its own cycle
-SLEEP_TIME = 3600
+SLEEP_TIME = 60
 
 # Number of concurrent bots / worker threads
 CONCURRENT_BOTS = multiprocessing.cpu_count()
@@ -63,16 +64,23 @@ def main():
     print("Writing log files")
     for result, bot in zip(results, bots):
         out, err = result.get()
-        filename = f"{BOT_OUTPUT_DIR}/{bot['username']}_{time.time()}.log"
+        filename = f"{BOT_OUTPUT_DIR}/{bot['username']}.log"
         out = out.decode('utf-8')  
-        err = err.decode('utf-8')        
+        err = err.decode('utf-8')
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(out)
-        with open(filename, "w") as file:
+        with open(filename, "a") as file:
             # Writing data to a file
+            file.write("\n")
+            file.write(f"------------------------------> {dt_string} <--------------------------------")
+            file.write("\n")
             file.write("STDOUT:\n")
             file.write(f"{str(out)}\n")
             file.write("STDERR:\n")
             file.write(f"{str(err)}\n")
+            file.write("------------------------------> End-of-Cycle <--------------------------------")
+            file.write("\n")
 
 if (__name__ == "__main__"):
     while True:
