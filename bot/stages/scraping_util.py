@@ -75,13 +75,11 @@ def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
     return wait_for_page_load(driver)
 
-
 def refresh_page(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Refreshing page...')
 
     driver.refresh()
     return wait_for_page_load(driver)
-
 
 def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement, None]:
     logging.info('Searching timeline for promoted tweets...')
@@ -94,7 +92,6 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
         logging.info('No promoted tweet found.')
         return None
 
-
 def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, None]:
     logging.info('Searching sidebar for promoted follows...')
 
@@ -106,11 +103,9 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
         logging.info('No promoted follow found.')
         return None
 
-
 def get_promoted_author(promoted_tweet: WebElement) -> str:
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
-
 
 def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
     """
@@ -147,7 +142,6 @@ def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
         logging.info("Tweet link scrape failed")
     return tweet_link
 
-
 def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
     """
     This function can scrape official link for the promoted tweet; this is the link which takes you outside Twitter
@@ -170,7 +164,6 @@ def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
         logging.info("Official link scrape failed")
     return tweet_official_link
 
-
 def get_promoted_follow(promoted_follow: WebElement) -> str:
     """
     Returns the twitter handle of an account promoted as a follow suggestion.
@@ -191,7 +184,6 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
         logging.info("Promoted follow handle scrape failed")
     return handle
 
-
 def get_promoted_follow_link(promoted_follow: WebElement) -> str:
     try:
         link = promoted_follow.find_element(By.XPATH, ".//a").get_attribute('href')
@@ -200,3 +192,7 @@ def get_promoted_follow_link(promoted_follow: WebElement) -> str:
         link = ""
         logging.info("Follow link scrape failed")
     return link
+
+def get_contents_and_likes(driver: Union[Firefox, Chrome]) -> WebElement:
+    """Returns a twitter "Who to follow" sidebar WebElement."""
+    return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
