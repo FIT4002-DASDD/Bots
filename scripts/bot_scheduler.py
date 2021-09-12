@@ -5,7 +5,8 @@ from multiprocessing.pool import ThreadPool
 import multiprocessing
 import os
 import csv
-
+import sys
+from datetime import datetime
 # Time in seconds between schedule cycles
 # A complete schedule cycle means that *each* bot has completed its own cycle
 SLEEP_TIME = 3600
@@ -21,15 +22,29 @@ BOT_BIN_PATH = f"{DIRNAME}/../bazel-bin/bot/app"
 
 # Bot output and logs
 BOT_OUTPUT_DIR = f"{DIRNAME}/../bot_out"
-
+LOG_DIR = f"{BOT_OUTPUT_DIR}/logs"
 # Path to csv file with bot info
 BOT_CSV_PATH = f"{DIRNAME}/bot-info.csv"
 
-def call_proc(cmd):
+def call_proc(cmd, bot):
     """ This runs in a separate thread. """
-    p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    return (out, err)
+    current_time = datetime.now()
+    year = current_time.strftime("%Y")
+    month = current_time.strftime("%B")
+    log_dir = f"{LOG_DIR}/{year}/{month}"
+
+    if not os.path.exists(log_dir): 
+        os.makedirs(log_dir)
+
+    # 1 log file per bot per hour
+    filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%d%m%Y')}.log"
+    with open(filename, 'a') as f:
+        f.write(f"--------------------{current_time.strftime('%d/%m/%Y %H:%M:%S')}--------------------\n")
+        with subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+            for line in p.stderr:
+                f.write(line.decode('utf8'))
+                f.flush()   # to write logs in real time
+    return
 
 def read_bot_csv(bot_file_dir):
     bots = []
@@ -48,31 +63,15 @@ def main():
     pool = ThreadPool(CONCURRENT_BOTS)
     bots = read_bot_csv(BOT_CSV_PATH)
 
-    cmd_list = []
-    for bot in bots:
-        cmd_list.append(f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}'")
-
     results = []
-    for i in range(len(cmd_list)):
-        results.append(pool.apply_async(call_proc, (cmd_list[i],)))
+    for bot in bots:
+        cmd = f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}'"
+        results.append(pool.apply_async(call_proc, (cmd, bot, )))
 
     # Close the pool and wait for each running task to complete
     pool.close()
     pool.join()
     print("All bots have finished their cycles")
-    print("Writing log files")
-    for result, bot in zip(results, bots):
-        out, err = result.get()
-        filename = f"{BOT_OUTPUT_DIR}/{bot['username']}_{time.time()}.log"
-        out = out.decode('utf-8')  
-        err = err.decode('utf-8')        
-        print(out)
-        with open(filename, "w") as file:
-            # Writing data to a file
-            file.write("STDOUT:\n")
-            file.write(f"{str(out)}\n")
-            file.write("STDERR:\n")
-            file.write(f"{str(err)}\n")
 
 if (__name__ == "__main__"):
     while True:
