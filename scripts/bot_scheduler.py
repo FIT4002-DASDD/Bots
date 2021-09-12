@@ -32,12 +32,13 @@ def call_proc(cmd, bot):
     year = current_time.strftime("%Y")
     month = current_time.strftime("%B")
     log_dir = f"{LOG_DIR}/{year}/{month}"
+    timestamp = int(current_time.timestamp())
 
     if not os.path.exists(log_dir): 
         os.makedirs(log_dir)
 
     # 1 log file per bot per hour
-    filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%d%m%Y')}.log"
+    filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%d%m%Y')}_{timestamp}.log"
     with open(filename, 'a') as f:
         f.write(f"--------------------{current_time.strftime('%d/%m/%Y %H:%M:%S')}--------------------\n")
         with subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
