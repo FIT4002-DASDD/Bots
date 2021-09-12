@@ -1,4 +1,3 @@
 #!/bin/bash
 
-STRING = "Testy test"
-echo $STRING
+echo "Testy test"

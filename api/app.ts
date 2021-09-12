@@ -14,9 +14,10 @@ app.get("/", (_, res) => {
 });
 
 app.get("/start-all-bots", (_, res) => {
+console.log('starting bots');
   exec(
-    "./test.sh",
-    { cwd: "C:/Users/nerv/Documents/Projects/Bots/scripts" },
+    "./start_server.sh",
+    { cwd: "/root/Bots/scripts" },
     (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);
