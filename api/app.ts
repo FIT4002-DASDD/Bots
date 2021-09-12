@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -15,21 +15,24 @@ app.get("/", (_, res) => {
 
 app.get("/start-all-bots", (_, res) => {
   console.log("starting bots");
-  exec(
-    "./scripts/start_server.sh",
-    { cwd: "/root/Bots" },
-    async (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-    }
-  );
+  let script = spawn("sh", ["./scripts/start_server.sh"], {
+    cwd: "/root/Bots",
+  });
+
+  script.stdout.setEncoding("utf8");
+  script.stdout.on("data", function (data: String) {
+    console.log("stdout: " + data);
+  });
+
+  script.stderr.setEncoding("utf8");
+  script.stderr.on("data", function (data: String) {
+    console.log("stderr: " + data);
+  });
+
+  script.on("close", function (code: String) {
+    console.log("closing code: " + code);
+  });
+
   console.log("bots running in background");
   res.status(200).send();
 });
