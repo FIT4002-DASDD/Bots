@@ -93,7 +93,14 @@ bots = [
     {
         'username': 'AgnesSursula',
         'password': 'OQCtrUUpGCzfa1HyOhhZ',
-        'phone_number': '',
+        'phone_number': '+61404245906',
+        'followed_accounts': [],
+        'relevant_tags': []
+    },
+    {
+        'username': 'Melinda06678369',
+        'password': 'MM8Q\=oks.p;nDFOeFe0',
+        'phone_number': '+60162289138',
         'followed_accounts': [],
         'relevant_tags': []
     }

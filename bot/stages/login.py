@@ -20,9 +20,6 @@ TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 VERIFICATION_WAIT = 3
 
-# The same phone number is used for all bots.
-ACCOUNT_PHONE_NUMBER = '+60162289138'
-
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
@@ -74,7 +71,7 @@ def verify_phone_number(driver: Union[Firefox, Chrome], username: str) -> None:
         phone_number = driver.find_element_by_name('challenge_response')
 
         # Fill in the element with phone number.
-        phone_number.send_keys(ACCOUNT_PHONE_NUMBER)
+        phone_number.send_keys(phone_number)
 
         # Hit enter.
         phone_number.send_keys(Keys.RETURN)
