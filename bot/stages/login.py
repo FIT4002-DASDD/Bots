@@ -78,4 +78,4 @@ def verify_phone_number(driver: Union[Firefox, Chrome], username: str) -> None:
         logging.info('Keyed in phone number for verification.')
     except:
         # We didn't need to verify phone number, continue as normal.
-        return
+        return None

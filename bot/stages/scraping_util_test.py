@@ -2,13 +2,12 @@
 Testing scraping util functionality.
 """
 from unittest import TestCase, main
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock, Mock, patch
 
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, take_element_screenshot
-
+from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link
 
 class ScrapingUtilTest(TestCase):
     @classmethod
@@ -54,7 +53,11 @@ class ScrapingUtilTest(TestCase):
         self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//div[@data-testid='primaryColumn']")
 
     def test_get_follow_sidebar(self):
-        pass
+        mock_sidebar = Mock()
+        self.mock_driver.find_element.return_value = mock_sidebar
+        result = get_follow_sidebar(self.mock_driver)
+        self.assertEqual(mock_sidebar, result)
+        self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//aside[@aria-label='Who to follow']")
 
     def test_take_element_screenshot(self):
         fake_screenshot_bytestring = b'\x89PNG\r\n\x1a\n'
@@ -77,21 +80,36 @@ class ScrapingUtilTest(TestCase):
 
     def test_wait_for_page_load_failure(self):
         pass
+    
+    @patch('bot.stages.login.wait_for_page_load')
+    def test_load_more_tweets(self, mock_wait_for_page_load):
+        mock_wait_for_page_load.return_value = True
+        load_more_tweets(self.mock_driver)
+        self.mock_driver.execute_script.assert_called_once_with('window.scrollTo(0, document.body.scrollHeight);')
 
-    def test_load_more_tweets(self):
-        pass
-
-    def test_refresh_page(self):
-        pass
+    @patch('bot.stages.login.wait_for_page_load')
+    def test_refresh_page(self, mock_wait_for_page_load):
+        mock_wait_for_page_load.return_value = True
+        refresh_page(self.mock_driver)
+        self.mock_driver.refresh.assert_called()
 
     def test_search_promoted_tweet_in_timeline(self):
-        pass
-
+        mock_timeline = Mock()
+        search_promoted_tweet_in_timeline(mock_timeline)
+        mock_timeline.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
+        
     def test_search_promoted_follow_in_sidebar(self):
-        pass
+        mock_sidebar = Mock()
+        search_promoted_follow_in_sidebar(mock_sidebar)
+        mock_sidebar.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
 
     def test_get_promoted_author(self):
-        pass
+        mock_promoted_tweet = Mock()
+        mock_promoter = Mock()
+        mock_promoted_tweet.find_element.return_value = mock_promoter
+        get_promoted_author(mock_promoted_tweet)
+        mock_promoted_tweet.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), '@')]")
+        mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
     def test_get_promoted_tweet_link(self):
         pass
@@ -100,10 +118,21 @@ class ScrapingUtilTest(TestCase):
         pass
 
     def test_get_promoted_follow(self):
-        pass
+        mock_promoted_follow = Mock()
+        mock_promoter = Mock()
+        mock_promoted_follow.find_element.return_value = mock_promoter
+        get_promoted_follow(mock_promoted_follow)
+        mock_promoted_follow.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), '@')]")
+        mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
     def test_get_promoted_follow_link(self):
-        pass
+        mock_promoted_follow = Mock()
+        mock_link = Mock()
+        mock_promoted_follow.find_element.return_value = mock_link
+        get_promoted_follow_link(mock_promoted_follow)
+        mock_promoted_follow.find_element.assert_called_once_with(By.XPATH, ".//a")
+        mock_link.get_attribute.assert_called_once_with('href')
+        
 
 
 if __name__ == '__main__':

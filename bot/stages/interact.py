@@ -26,6 +26,7 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.scraping_util import get_contents_and_likes
 
 FLAGS = flags.FLAGS
 
@@ -34,8 +35,6 @@ TARGET_AD_COUNT = 2
 
 # This is just an aim for how many tweets to retweet
 TARGET_RETWEET_COUNT = 3
-# This is just an aim for how many times to load more tweets by scrolling down the page
-TARGET_SCROLL_COUNT = 10
 
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
@@ -52,6 +51,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
+    retweet_posts(driver, bot_username)
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -63,7 +63,6 @@ def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     except:
         # No policy update found, continue as normal.
         return None
-
 
 def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     """Scrapes the bot's timeline for Promoted content."""
@@ -77,7 +76,19 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
+        contents_and_likes = get_contents_and_likes(driver)
         refresh = False
+
+        # Process tweets to find for tweets that have certain keywords for liking
+        for element in range(0, len(contents_and_likes), 4):
+            try:
+                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
+                    xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
+                                        f'::div[4]//div[@data-testid="like"]'
+                    like_button = driver.find_element_by_xpath(xpath_with_text)
+                    like_button.click()
+            except exceptions.StaleElementReferenceException as e:
+                continue
 
         # NOTE: We must process found promoted content before refresh as the WebElement may no longer exist after.
         # Process Promoted Follow. We treat promoted follows similar to promoted tweets.
@@ -139,88 +150,54 @@ def _write_out_ad_collection():
         # Clear the ads.
         ad_collection.Clear()
 
+def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
+    """Function to retweet posts from followed accounts."""
+    for account in get_bot(bot_username, 'ACCOUNTS'):
+        if visit_account(driver, account):
+            buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
+            iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
+            for i in range(iterate):
+                buttons_to_retweet[i].click()
 
-def like_post(driver: Chrome, bot_username: str) -> None:
-    """TBD."""
-    bot = None
-    try:
-        count = 0
-        found = False
-        while not found:
-            if bot_username != bots[0]['username']:
-                count += 1
-            bot = bots[count]
-            found = True
-    except:
-        logging.error("Bot does not exist in bot_info.py")
-
-    tags_to_include = bot['relevant_tags']
-    count = 0
-    while count < TARGET_SCROLL_COUNT:
-        try:
-            contents_and_likes = driver.find_elements_by_xpath(
-                '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
-            for element in range(0, len(contents_and_likes), 4):
+                # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
                 try:
-                    if any(tag in contents_and_likes[element].text for tag in tags_to_include):
-                        xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
-                                          f'::div[4]//div[@data-testid="like"] '
-                        like_button = driver.find_element_by_xpath(xpath_with_text)
-                        like_button.click()
-                except exceptions.StaleElementReferenceException as e:
+                    driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                except Exception as e:
                     continue
 
-            load_more_tweets(driver)
-            count += 1
-
-        except Exception as e:
-            count += 1
-            continue
+                time.sleep(2)
+            time.sleep(5)
+        else:
+            logging.error("Account visit failed.")
 
     return None
 
-
-def retweet_posts(driver: Chrome, bot_username: str) -> None:
-    """TBD."""
-    bot = None
+def get_bot(bot_username: str, info: str) -> list:
+    """Function to get bot info from bot_info.py."""
+    bot = {}
     try:
         count = 0
         found = False
         while not found:
-            if bot_username != bots[0]['username']:
+            if bot_username != bots[count]['username']:
                 count += 1
-            bot = bots[count]
-            found = True
+            else:
+                bot = bots[count]
+                found = True
+        if info == 'TAGS':
+            return bot['relevant_tags']
+        elif info == 'ACCOUNTS':
+            return bot['followed_accounts']
     except:
         logging.error("Bot does not exist in bot_info.py")
-
-    followed_accounts = bot['followed_accounts']
-
-    for account in followed_accounts:
-        visit_account(driver, account)
-        buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
-        iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
-        for i in range(iterate):
-            buttons_to_retweet[i].click()
-
-            # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
-            try:
-                driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-            except Exception as e:
-                continue
-
-            time.sleep(2)
-        time.sleep(5)
-
-    return None
-
+        return bot
 
 def visit_account(driver: Chrome, followed_account: str) -> bool:
-    """TBD."""
+    """Function to visit a Twitter account page."""
     try:
         profile_url = 'https://twitter.com/' + followed_account
         driver.get(profile_url)
-
+        time.sleep(3)
         if wait_for_page_load(driver):
             logging.info('Successfully visited account : ' + followed_account)
             return True

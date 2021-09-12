@@ -2,9 +2,9 @@
 Testing interact functionality.
 """
 from unittest import TestCase, main
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch, Mock
 
-from bot.stages.interact import interact, agree_to_policy_updates_if_exists, like_post, retweet_posts, visit_account
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account, get_bot
 
 
 class InteractTest(TestCase):
@@ -43,15 +43,26 @@ class InteractTest(TestCase):
         pass
 
     def test_agree_to_policy_updates_if_exists(self):
-        pass
+        self.mock_driver.find_element_by_xpath.return_value = None
+        result = agree_to_policy_updates_if_exists(self.mock_driver)
+        self.assertEqual(None, result)
+        self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
 
-    def test_like_post(self):
-        pass
-
-    def test_retweet_posts(self):
-        pass
+    @patch('bot.stages.interact.get_bot', return_value=['@democracynow','@IlhanMN'])
+    @patch('bot.stages.interact.visit_account', return_value=True)
+    def test_retweet_posts(self, mock_get_bot, mock_visit_account):
+        username = 'fakeusername'
+        mock_tweet = Mock()
+        self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
+        result = retweet_posts(self.mock_driver, username)
+        self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
+        self.mock_driver.find_element_by_xpath.assert_called_with('//div[@data-testid="retweetConfirm"]')
+        self.assertEqual(None, result)
 
     def test_visit_account(self):
+        pass
+
+    def test_get_bot(self):
         pass
 
 
