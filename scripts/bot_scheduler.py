@@ -1,3 +1,11 @@
+"""
+This script is used to schedule and run the bots.
+The script utilises multiprocessing to spawn a new process for each bot 
+and control the maximum number of bots to run concurrently with ThreadPool.
+After all the bots are finished, it'll sleep for SLEEP_TIME seconds before continue again.
+
+Check the constant belows to configure the schedule behaviour and input and output directories
+"""
 import subprocess
 import shlex
 import time

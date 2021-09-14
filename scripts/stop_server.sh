@@ -1,8 +1,6 @@
 #!/bin/bash
 
 process_id=$(pgrep 'start_server.sh')
-# pkill -15 -P ${process_id}
-# echo "Server stopped"
 
 list_descendants ()
 {
@@ -20,3 +18,4 @@ list_descendants ()
 }
 
 kill $(list_descendants ${process_id})
+echo "Bots stopped successfully"
