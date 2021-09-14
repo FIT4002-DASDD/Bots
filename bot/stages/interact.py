@@ -87,7 +87,8 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
                                         f'::div[4]//div[@data-testid="like"]'
                     like_button = driver.find_element_by_xpath(xpath_with_text)
                     like_button.click()
-            except exceptions.StaleElementReferenceException as e:
+                    logging.info(bot_username + " liked a tweet.")
+            except Exception as e:
                 continue
 
         # NOTE: We must process found promoted content before refresh as the WebElement may no longer exist after.
@@ -158,10 +159,11 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
             iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
             for i in range(iterate):
                 buttons_to_retweet[i].click()
-
+                logging.info("Clicked on retweet.")
                 # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
                 try:
                     driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                    logging.info("Clicked on confirm retweet.")
                 except Exception as e:
                     continue
 
