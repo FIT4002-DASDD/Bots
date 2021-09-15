@@ -46,7 +46,7 @@ def call_proc(cmd, bot):
     if not os.path.exists(log_dir): 
         os.makedirs(log_dir)
 
-    filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%d%m%Y')}_{timestamp}.log"
+    filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%Y%m%d')}_{timestamp}.log"
     with open(filename, 'a') as f:
         f.write(f"--------------------{current_time.strftime('%d/%m/%Y %H:%M:%S')}--------------------\n")
         with subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
@@ -74,7 +74,7 @@ def main():
 
     results = []
     for bot in bots:
-        cmd = f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}'"
+        cmd = f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}' --debug=False"
         results.append(pool.apply_async(call_proc, (cmd, bot, )))
 
     # Close the pool and wait for each running task to complete
