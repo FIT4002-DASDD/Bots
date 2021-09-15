@@ -12,7 +12,6 @@ py_binary(
     deps = [
         "//bot/stages",
         requirement("absl-py"),
-        requirement("schedule"),
         requirement("selenium"),
     ],
 )
