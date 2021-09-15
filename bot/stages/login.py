@@ -22,60 +22,76 @@ VERIFICATION_WAIT = 3
 
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
-    if not _login(driver, username, password):
-        raise Exception('FAILURE. Log in was not successful.')
+  if not _login(driver, username, password):
+    raise Exception('FAILURE. Log in was not successful.')
 
 
 def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
+  try:
+    driver.get(TWITTER_LOGIN_URL)
+
+    e_username = WebDriverWait(driver, LOGIN_WAIT).until(
+        EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
+    e_pw = driver.find_element_by_name('session[password]')
+
+    e_username.send_keys(username)
+    e_pw.send_keys(password)
+    e_pw.send_keys(Keys.RETURN)
+  except Exception as e:
+    logging.info("UNSURE: Alternate login screen shown.")
     try:
-        driver.get(TWITTER_LOGIN_URL)
-
-        e_username = WebDriverWait(driver, LOGIN_WAIT).until(
-            EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
-        e_pw = driver.find_element_by_name('session[password]')
-
-        e_username.send_keys(username)
-        e_pw.send_keys(password)
-        e_pw.send_keys(Keys.RETURN)
-
-        # Pass phone number in for verification
-        time.sleep(VERIFICATION_WAIT)
-        verify_phone_number(driver, username)
-
-        if wait_for_page_load(driver):
-            logging.info('Successfully logged in.')
-            return True
-        else:
-            return False
+      alternate_screen_login(driver, username, password)
     except Exception as e:
-        print(e)
-        return False
+      logging.info(e)
+      return False
+
+  if wait_for_page_load(driver):
+    logging.info('Successfully logged in.')
+    return True
+  else:
+    return False
+
+
+def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
+  """Function to login with the alternate Twitter login interface."""
+  try:
+    username = driver.find_element_by_name("username")
+    username.send_keys(bot_username)
+    username.send_keys(Keys.RETURN)
+
+    time.sleep(2)
+    password = driver.find_element_by_name("password")
+    password.send_keys(bot_password)
+    password.send_keys(Keys.RETURN)
+  except:
+    return None
 
 
 def verify_phone_number(driver: Union[Firefox, Chrome], username: str) -> None:
-    """Key-in phone number if phone number verification is presented."""
-    try:
-        bot_info = None
-        for bot in bots:
-            if username == bot['username']:
-                bot_info = bot
-                break
-        if bot_info is None:
-            logging.error("Bot does not exist in bot_info.py")
-            return
-        phone_number = bot_info['phone_number']
-        # To ensure that the verification required is phone number verification.
-        hint = driver.find_element_by_xpath(f"//strong[contains(text(), 'Your phone number ends in {phone_number[-2:]}')]")
+  """Key-in phone number if phone number verification is presented."""
+  try:
+    bot_info = None
+    for bot in bots:
+      if username == bot['username']:
+        bot_info = bot
+        break
+    if bot_info is None:
+      logging.error("Bot does not exist in bot_info.py")
+      return
+    phone_number = bot_info['phone_number']
+    # To ensure that the verification required is phone number verification.
+    hint = driver.find_element_by_xpath(
+        f"//strong[contains(text(), 'Your phone number ends in {phone_number[-2:]}')]")
 
-        # Find the element to fill the phone number detail.
-        phone_number = driver.find_element_by_name('challenge_response')
+    # Find the element to fill the phone number detail.
+    phone_number = driver.find_element_by_name('challenge_response')
 
-        # Fill in the element with phone number.
-        phone_number.send_keys(phone_number)
+    # Fill in the element with phone number.
+    phone_number.send_keys(phone_number)
 
-        # Hit enter.
-        phone_number.send_keys(Keys.RETURN)
-        logging.info('Keyed in phone number for verification.')
-    except:
-        # We didn't need to verify phone number, continue as normal.
-        return None
+    # Hit enter.
+    phone_number.send_keys(Keys.RETURN)
+    logging.info('Keyed in phone number for verification.')
+  except:
+    # We didn't need to verify phone number, continue as normal.
+    return None

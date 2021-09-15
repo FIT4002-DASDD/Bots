@@ -91,17 +91,40 @@ bots = [
         ]
     },
     {
-        'username': 'AgnesSursula',
-        'password': 'OQCtrUUpGCzfa1HyOhhZ',
-        'phone_number': '+61404245906',
-        'followed_accounts': ["@SkyNews", "@theboltreport", "@rowandean", "@RealMarkLatham", "@PaulineHansonOz", "@mattjcan", "@OneNationAus", "@Barnaby_Joyce", "@HonTonyAbbott", "@LiberalAus", "@HonJulieBishop", "@The_Nationals", "@MRobertsQLD"],
+        'username': 'Melinda06678369',
+        'password': 'MM8Q\=oks.p;nDFOeFe0',
+        'followed_accounts': [
+            '@Greens',
+            '@AustralianLabor',
+            '@sarahinthesen8',
+            '@AdamBandt',
+            '@SenatorWong',
+            '@AlboMP',
+            '@tanya_pilbersek',
+            '@BernardKeane',
+            '@GuardianAus'
+        ],
         'relevant_tags': []
     },
     {
-        'username': 'Melinda06678369',
-        'password': 'MM8Q\=oks.p;nDFOeFe0',
-        'phone_number': '+60162289138',
-        'followed_accounts': ["@Greens", "@AustralianLabor", "@sarahinthesen8", "@AdamBandt", "@SenatorWong", "@AlboMP", "@tanya_pilbersek", "@BernardKeane", "@GuardianAus"],
-        'relevant_tags': []
+        'username': 'AgnesSursula',
+        'password': 'OQCtrUUpGCzfa1HyOhhZ',
+        'followed_accounts': [
+            '@SkyNews',
+            '@theboltreport',
+            '@rowandean',
+            '@RealMarkLatham',
+            '@PaulineHansonOz',
+            '@mattjcan',
+            '@OneNationAus',
+            '@Barnaby_Joyce',
+            '@HonTonyAbbott',
+            '@LiberalAus',
+            '@HonJulieBishop',
+            '@The_Nationals',
+            '@MRobertsQLD'
+        ],
+        'relevant_tags': [
+        ]
     }
 ]
