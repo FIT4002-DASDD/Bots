@@ -60,10 +60,8 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
 
     def test_visit_account(self):
-        pass
-
-    def test_get_bot(self):
-        pass
+        visit_account(self.mock_driver, '@SkyNews')
+        self.mock_driver.get.assert_called_with('https://twitter.com/@SkyNews')
 
 
 if __name__ == '__main__':

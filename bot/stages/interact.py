@@ -194,7 +194,7 @@ def get_bot(bot_username: str, info: str) -> list:
         logging.error("Bot does not exist in bot_info.py")
         return bot
 
-def visit_account(driver: Chrome, followed_account: str) -> bool:
+def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool:
     """Function to visit a Twitter account page."""
     try:
         profile_url = 'https://twitter.com/' + followed_account

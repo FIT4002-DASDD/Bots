@@ -62,7 +62,7 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
         username.send_keys(Keys.RETURN)
 
         time.sleep(2)
-        password = driver.find_element_by_name("password")
+        password = driver.find_element(By.NAME, "password")
         password.send_keys(bot_password)
         password.send_keys(Keys.RETURN)
     except:

@@ -134,7 +134,11 @@ class ScrapingUtilTest(TestCase):
         mock_link.get_attribute.assert_called_once_with('href')
 
     def test_get_contents_and_likes(self):
-        pass
+        mock_contents_and_likes = Mock()
+        self.mock_driver.find_elements_by_xpath.return_value = mock_contents_and_likes
+        result = get_contents_and_likes(self.mock_driver)
+        self.assertEqual(mock_contents_and_likes, result)
+        self.mock_driver.find_elements_by_xpath.assert_called_once_with('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
         
 
 
