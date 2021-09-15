@@ -64,7 +64,7 @@ directory.
 
 To start the bots run: `nohup ./scripts/start_server.sh & disown -a`. This script will run the bots in the background with no output to the terminal and detach them from the terminal so that they will keep running even when the terminal exits / ssh session closes.
 
-To stop the bots run: `./scripts/stop_server.sh`. This script will any process name that matches 'start_server.sh', find and kill all its descendants.
+To stop the bots run: `./scripts/stop_server.sh`. This script will find any process name that matches 'start_server.sh', find and kill all its descendants.
 
 To configure the bot schedule, check `./scripts/bot_scheduler.py`:
 
