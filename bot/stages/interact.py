@@ -205,7 +205,7 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
 def get_bot(bot_username: str, info: str) -> Union[list, str]:
     """Function to get bot info from bot_info.py."""
-    bot = {}
+    bot = None
     try:
         count = 0
         found = False
@@ -215,12 +215,13 @@ def get_bot(bot_username: str, info: str) -> Union[list, str]:
             else:
                 bot = bots[count]
                 found = True
-        if info == 'TAGS':
-            return bot['relevant_tags']
-        elif info == 'ACCOUNTS':
-            return bot['followed_accounts']
-        elif info == 'NUMBER':
-            return bot['phone_number']
+        if found:
+            if info == 'TAGS':
+                return bot['relevant_tags']
+            elif info == 'ACCOUNTS':
+                return bot['followed_accounts']
+            elif info == 'NUMBER':
+                return bot['phone_number']
     except:
         logging.error("Bot does not exist in bot_info.py")
         return bot
