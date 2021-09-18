@@ -55,9 +55,10 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     """
     _scrape(driver, bot_username)
 
+    # added randomisation to visiting account and retweeting tweets
     seed(randint(1,10))
     random_value = random()
-    if random_value > 0:
+    if random_value > 0.5:
         retweet_posts(driver, bot_username)
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -159,6 +160,7 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
     for account in get_bot(bot_username, 'ACCOUNTS'):
         if visit_account(driver, account):
+            # Call function to like tweets randomly
             like_post(driver, bot_username)
             buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
             iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
@@ -183,12 +185,14 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     return None
 
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
+    """Function to randomly like tweets."""
     try:
         like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
+            # randomise tweets to like
             seed(randint(1,10))
             random_value = random()
-            if random_value > 0:
+            if random_value > 0.5:
                 try:
                     like_buttons[button].click()
                     logging.info(bot_username + " liked a tweet.")

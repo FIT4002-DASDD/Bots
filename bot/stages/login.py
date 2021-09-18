@@ -37,6 +37,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
         e_username.send_keys(username)
         e_pw.send_keys(password)
         e_pw.send_keys(Keys.RETURN)
+        
     except Exception as e:
         logging.info("UNSURE: Alternate login screen shown.")
         try:
@@ -72,10 +73,12 @@ def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> No
     """Key-in phone number if phone number verification is presented."""
     try:
         ACCOUNT_PHONE_NUMBER = get_bot(bot_username, 'NUMBER')
+
+        # The text on twitter page will say "Your phone number ends in <last 2 digits of the phone number>"
         xpath = "//strong[contains(text(), 'Your phone number ends in " + ACCOUNT_PHONE_NUMBER[-2:] + "')]"
+        
         # To ensure that the verification required is phone number verification.
         hint = driver.find_element_by_xpath(xpath)
-        # hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
 
         # Find the element to fill the phone number detail.
         phone_number = driver.find_element_by_name('challenge_response')
