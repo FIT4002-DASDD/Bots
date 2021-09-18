@@ -11,6 +11,9 @@ from absl import flags
 from absl import logging
 from selenium.common import exceptions
 from selenium.webdriver import Chrome, Firefox
+from random import seed
+from random import random
+from random import randint
 
 from bot.stages.bot_info import bots
 from bot.stages.scraping_util import get_follow_sidebar
@@ -51,8 +54,11 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
-    retweet_posts(driver, bot_username)
 
+    seed(randint(1,10))
+    random_value = random()
+    if random_value > 0:
+        retweet_posts(driver, bot_username)
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     """Click 'Ok' on the policy update pop-up if present."""
@@ -127,14 +133,12 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         logging.info('Writing out AdCollection as one day has elapsed.')
         _write_out_ad_collection()
 
-
 def _should_flush_ad_collection() -> bool:
     """
     Whether the ads stored in the AdCollection need to be written out.
     Ads will be flushed ONCE a DAY.
     """
     return date.today() > LAST_WRITTEN_OUT
-
 
 def _write_out_ad_collection():
     """Serializes the AdCollection proto and writes it out to a binary file."""
@@ -155,17 +159,21 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
     for account in get_bot(bot_username, 'ACCOUNTS'):
         if visit_account(driver, account):
+            like_post(driver, bot_username)
             buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
             iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
             for i in range(iterate):
-                buttons_to_retweet[i].click()
-                logging.info("Clicked on retweet.")
-                # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
                 try:
-                    driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-                    logging.info("Clicked on confirm retweet.")
-                except Exception as e:
-                    continue
+                    buttons_to_retweet[i].click()
+                    logging.info("Clicked on retweet.")
+                    # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                    try:
+                        driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                        logging.info("Clicked on confirm retweet.")
+                    except Exception as e:
+                        continue
+                except:
+                    pass
 
                 time.sleep(2)
             time.sleep(5)
@@ -174,7 +182,24 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
     return None
 
-def get_bot(bot_username: str, info: str) -> list:
+def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
+    try:
+        like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
+        for button in range(0, len(like_buttons)):
+            seed(randint(1,10))
+            random_value = random()
+            if random_value > 0:
+                try:
+                    like_buttons[button].click()
+                    logging.info(bot_username + " liked a tweet.")
+                except:
+                    continue
+    except Exception as e:
+        pass
+    
+    return None
+
+def get_bot(bot_username: str, info: str) -> Union[list, str]:
     """Function to get bot info from bot_info.py."""
     bot = {}
     try:
@@ -190,6 +215,8 @@ def get_bot(bot_username: str, info: str) -> list:
             return bot['relevant_tags']
         elif info == 'ACCOUNTS':
             return bot['followed_accounts']
+        elif info == 'NUMBER':
+            return bot['phone_number']
     except:
         logging.error("Bot does not exist in bot_info.py")
         return bot
@@ -209,3 +236,4 @@ def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool
     except Exception as e:
         print(e)
         return False
+

@@ -2,6 +2,7 @@ bots = [
     {
         'username': 'ElizaHahns',
         'password': 'AKJHD97434%^%',
+        'phone_number': '+61404245906',
         'followed_accounts': [
             '@Jim_Jordan',
             '@michellemalkin',
@@ -49,6 +50,7 @@ bots = [
     {
         'username': 'Allison45555547',
         'password': 'A2IHNDjPu23SNEjfy4ts',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@democracynow',
             '@IlhanMN',
@@ -93,6 +95,7 @@ bots = [
     {
         'username': 'Melinda06678369',
         'password': 'MM8Q\=oks.p;nDFOeFe0',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@Greens',
             '@AustralianLabor',
@@ -109,6 +112,7 @@ bots = [
     {
         'username': 'AgnesSursula',
         'password': 'OQCtrUUpGCzfa1HyOhhZ',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@SkyNews',
             '@theboltreport',

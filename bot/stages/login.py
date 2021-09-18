@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.interact import get_bot
 
 FLAGS = flags.FLAGS
 
@@ -19,10 +20,6 @@ TWITTER_LOGIN_URL = 'https://twitter.com/login'
 
 LOGIN_WAIT = 10
 VERIFICATION_WAIT = 3
-
-# The same phone number is used for all bots.
-ACCOUNT_PHONE_NUMBER = '+60162289138'
-
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
@@ -48,6 +45,9 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
             logging.info(e)
             return False        
 
+    time.sleep(VERIFICATION_WAIT)
+    verify_phone_number(driver, username)
+
     if wait_for_page_load(driver):
         logging.info('Successfully logged in.')
         return True
@@ -68,11 +68,14 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
     except:
         return None
 
-def verify_phone_number(driver: Union[Firefox, Chrome]) -> None:
+def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Key-in phone number if phone number verification is presented."""
     try:
+        ACCOUNT_PHONE_NUMBER = get_bot(bot_username, 'NUMBER')
+        xpath = "//strong[contains(text(), 'Your phone number ends in " + ACCOUNT_PHONE_NUMBER[-2:] + "')]"
         # To ensure that the verification required is phone number verification.
-        hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
+        hint = driver.find_element_by_xpath(xpath)
+        # hint = driver.find_element_by_xpath("//strong[contains(text(), 'Your phone number ends in 38')]")
 
         # Find the element to fill the phone number detail.
         phone_number = driver.find_element_by_name('challenge_response')
