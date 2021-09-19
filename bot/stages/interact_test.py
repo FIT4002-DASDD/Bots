@@ -4,7 +4,7 @@ Testing interact functionality.
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch, Mock
 
-from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account, get_bot
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account
 
 
 class InteractTest(TestCase):
@@ -48,7 +48,7 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
         self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
 
-    @patch('bot.stages.interact.get_bot', return_value=['@democracynow','@IlhanMN'])
+    @patch('bot.stages.bot_info.get_bot', return_value=['@democracynow','@IlhanMN'])
     @patch('bot.stages.interact.visit_account', return_value=True)
     def test_retweet_posts(self, mock_get_bot, mock_visit_account):
         username = 'fakeusername'

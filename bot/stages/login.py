@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.stages.scraping_util import wait_for_page_load
-from bot.stages.interact import get_bot
+from bot.stages.bot_info import get_bot
 
 FLAGS = flags.FLAGS
 
@@ -72,7 +72,7 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Key-in phone number if phone number verification is presented."""
     try:
-        account_phone_number = get_bot(bot_username, 'NUMBER')
+        account_phone_number = get_bot(bot_username, 'phone_number')
 
         # The text on twitter page will say "Your phone number ends in <last 2 digits of the phone number>"
         xpath = "//strong[contains(text(), 'Your phone number ends in " + account_phone_number[-2:] + "')]"
