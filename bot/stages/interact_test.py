@@ -48,11 +48,13 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
         self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
 
-    @patch('bot.stages.bot_info.get_bot', return_value=['@democracynow','@IlhanMN'])
+    @patch('bot.stages.bot_info.get_bot')
     @patch('bot.stages.interact.visit_account', return_value=True)
-    def test_retweet_posts(self, mock_get_bot, mock_visit_account):
-        username = 'fakeusername'
+    @patch('bot.stages.interact.like_post', return_value=None)
+    def test_retweet_posts(self, mock_get_bot, mock_visit_account, mock_like_post):
+        username = 'Melinda06678369'
         mock_tweet = Mock()
+        mock_get_bot.return_value = ['@democracynow','@IlhanMN']
         self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
         result = retweet_posts(self.mock_driver, username)
         self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
