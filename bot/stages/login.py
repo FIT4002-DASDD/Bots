@@ -72,10 +72,10 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Key-in phone number if phone number verification is presented."""
     try:
-        ACCOUNT_PHONE_NUMBER = get_bot(bot_username, 'NUMBER')
+        account_phone_number = get_bot(bot_username, 'NUMBER')
 
         # The text on twitter page will say "Your phone number ends in <last 2 digits of the phone number>"
-        xpath = "//strong[contains(text(), 'Your phone number ends in " + ACCOUNT_PHONE_NUMBER[-2:] + "')]"
+        xpath = "//strong[contains(text(), 'Your phone number ends in " + account_phone_number[-2:] + "')]"
         
         # To ensure that the verification required is phone number verification.
         hint = driver.find_element_by_xpath(xpath)
@@ -84,7 +84,7 @@ def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> No
         phone_number = driver.find_element_by_name('challenge_response')
 
         # Fill in the element with phone number.
-        phone_number.send_keys(ACCOUNT_PHONE_NUMBER)
+        phone_number.send_keys(account_phone_number)
 
         # Hit enter.
         phone_number.send_keys(Keys.RETURN)

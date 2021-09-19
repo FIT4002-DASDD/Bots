@@ -9,13 +9,10 @@ import proto.ad_pb2 as ad_pb2
 import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
-from selenium.common import exceptions
 from selenium.webdriver import Chrome, Firefox
-from random import seed
 from random import random
-from random import randint
 
-from bot.stages.bot_info import bots
+from bot.stages.bot_info import get_bot
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
@@ -56,9 +53,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     _scrape(driver, bot_username)
 
     # added randomisation to visiting account and retweeting tweets
-    seed(randint(1,10))
-    random_value = random()
-    if random_value > 0.5:
+    if random() > 0.5:
         retweet_posts(driver, bot_username)
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -89,7 +84,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         # Process tweets to find for tweets that have certain keywords for liking
         for element in range(0, len(contents_and_likes), 4):
             try:
-                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
+                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'relevant_tags')):
                     xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
                                         f'::div[4]//div[@data-testid="like"]'
                     like_button = driver.find_element_by_xpath(xpath_with_text)
@@ -158,7 +153,7 @@ def _write_out_ad_collection():
 
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
-    for account in get_bot(bot_username, 'ACCOUNTS'):
+    for account in get_bot(bot_username, 'followed_accounts'):
         if visit_account(driver, account):
             # Call function to like tweets randomly
             like_post(driver, bot_username)
@@ -190,9 +185,7 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
         like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
             # randomise tweets to like
-            seed(randint(1,10))
-            random_value = random()
-            if random_value > 0.5:
+            if random() > 0.5:
                 try:
                     like_buttons[button].click()
                     logging.info(bot_username + " liked a tweet.")
@@ -202,29 +195,6 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
         pass
     
     return None
-
-def get_bot(bot_username: str, info: str) -> Union[list, str]:
-    """Function to get bot info from bot_info.py."""
-    bot = None
-    try:
-        count = 0
-        found = False
-        while not found:
-            if bot_username != bots[count]['username']:
-                count += 1
-            else:
-                bot = bots[count]
-                found = True
-        if found:
-            if info == 'TAGS':
-                return bot['relevant_tags']
-            elif info == 'ACCOUNTS':
-                return bot['followed_accounts']
-            elif info == 'NUMBER':
-                return bot['phone_number']
-    except:
-        logging.error("Bot does not exist in bot_info.py")
-        return bot
 
 def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool:
     """Function to visit a Twitter account page."""
