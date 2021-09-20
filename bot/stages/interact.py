@@ -9,10 +9,10 @@ import proto.ad_pb2 as ad_pb2
 import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
-from selenium.common import exceptions
 from selenium.webdriver import Chrome, Firefox
+from random import random
 
-from bot.stages.bot_info import bots
+from bot.stages.bot_info import get_bot
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
@@ -51,8 +51,10 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
         - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
-    retweet_posts(driver, bot_username)
 
+    # added randomisation to visiting account and retweeting tweets
+    if random() > 0.5:
+        retweet_posts(driver, bot_username)
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     """Click 'Ok' on the policy update pop-up if present."""
@@ -82,7 +84,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         # Process tweets to find for tweets that have certain keywords for liking
         for element in range(0, len(contents_and_likes), 4):
             try:
-                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'TAGS')):
+                if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'relevant_tags')):
                     xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
                                         f'::div[4]//div[@data-testid="like"]'
                     like_button = driver.find_element_by_xpath(xpath_with_text)
@@ -127,14 +129,12 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         logging.info('Writing out AdCollection as one day has elapsed.')
         _write_out_ad_collection()
 
-
 def _should_flush_ad_collection() -> bool:
     """
     Whether the ads stored in the AdCollection need to be written out.
     Ads will be flushed ONCE a DAY.
     """
     return date.today() > LAST_WRITTEN_OUT
-
 
 def _write_out_ad_collection():
     """Serializes the AdCollection proto and writes it out to a binary file."""
@@ -153,19 +153,24 @@ def _write_out_ad_collection():
 
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
-    for account in get_bot(bot_username, 'ACCOUNTS'):
+    for account in get_bot(bot_username, 'followed_accounts'):
         if visit_account(driver, account):
+            # Call function to like tweets randomly
+            like_post(driver, bot_username)
             buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
             iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
             for i in range(iterate):
-                buttons_to_retweet[i].click()
-                logging.info("Clicked on retweet.")
-                # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
                 try:
-                    driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-                    logging.info("Clicked on confirm retweet.")
-                except Exception as e:
-                    continue
+                    buttons_to_retweet[i].click()
+                    logging.info("Clicked on retweet.")
+                    # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                    try:
+                        driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                        logging.info("Clicked on confirm retweet.")
+                    except Exception as e:
+                        continue
+                except:
+                    pass
 
                 time.sleep(2)
             time.sleep(5)
@@ -174,27 +179,24 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
     return None
 
-def get_bot(bot_username: str, info: str) -> list:
-    """Function to get bot info from bot_info.py."""
-    bot = {}
+def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
+    """Function to randomly like tweets."""
     try:
-        count = 0
-        found = False
-        while not found:
-            if bot_username != bots[count]['username']:
-                count += 1
-            else:
-                bot = bots[count]
-                found = True
-        if info == 'TAGS':
-            return bot['relevant_tags']
-        elif info == 'ACCOUNTS':
-            return bot['followed_accounts']
-    except:
-        logging.error("Bot does not exist in bot_info.py")
-        return bot
+        like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
+        for button in range(0, len(like_buttons)):
+            # randomise tweets to like
+            if random() > 0.5:
+                try:
+                    like_buttons[button].click()
+                    logging.info(bot_username + " liked a tweet.")
+                except:
+                    continue
+    except Exception as e:
+        pass
+    
+    return None
 
-def visit_account(driver: Chrome, followed_account: str) -> bool:
+def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool:
     """Function to visit a Twitter account page."""
     try:
         profile_url = 'https://twitter.com/' + followed_account
@@ -209,3 +211,4 @@ def visit_account(driver: Chrome, followed_account: str) -> bool:
     except Exception as e:
         print(e)
         return False
+
