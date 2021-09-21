@@ -1,7 +1,11 @@
-bots = [
-    {
+from absl import logging
+from typing import Union
+
+bots = {
+    'ElizaHahns': {
         'username': 'ElizaHahns',
         'password': 'AKJHD97434%^%',
+        'phone_number': '+61404245906',
         'followed_accounts': [
             '@Jim_Jordan',
             '@michellemalkin',
@@ -46,9 +50,10 @@ bots = [
             'god'
         ]
     },
-    {
+    'Allison45555547': {
         'username': 'Allison45555547',
         'password': 'A2IHNDjPu23SNEjfy4ts',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@democracynow',
             '@IlhanMN',
@@ -90,9 +95,10 @@ bots = [
             'alexandria ocasio cortez'
         ]
     },
-    {
+    'Melinda06678369': {
         'username': 'Melinda06678369',
         'password': 'MM8Q\=oks.p;nDFOeFe0',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@Greens',
             '@AustralianLabor',
@@ -106,9 +112,10 @@ bots = [
         ],
         'relevant_tags': []
     },
-    {
+    'AgnesSursula': {
         'username': 'AgnesSursula',
         'password': 'OQCtrUUpGCzfa1HyOhhZ',
+        'phone_number': '+61404328304',
         'followed_accounts': [
             '@SkyNews',
             '@theboltreport',
@@ -127,4 +134,12 @@ bots = [
         'relevant_tags': [
         ]
     }
-]
+}
+def get_bot(bot_username: str, info: str) -> Union[list, str]:
+    """Function to get bot info from bot_info.py."""
+    try:
+        bot = bots[bot_username][info]
+        return bot
+    except:
+        logging.error("Bot does not exist in bot_info.py")
+        return

@@ -21,12 +21,22 @@ SCREENSHOT_COUNT = 1
 
 def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
   """Returns a twitter timeline WebElement."""
-  return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
+  try:
+    return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
+  except:
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
+        (By.XPATH, "//div[@data-testid='primaryColumn']")))
+    return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
 
 def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
   """Returns a twitter "Who to follow" sidebar WebElement."""
-  return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
+  try:
+    return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
+  except:
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
+        (By.XPATH, "//aside[@aria-label='Who to follow']")))
+    return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
 
 
 def take_element_screenshot(web_element: WebElement) -> str:
@@ -209,4 +219,9 @@ def get_promoted_follow_link(promoted_follow: WebElement) -> str:
 
 def get_contents_and_likes(driver: Union[Firefox, Chrome]) -> WebElement:
   """Returns a twitter "Who to follow" sidebar WebElement."""
-  return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
+  try:
+    return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
+  except:
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
+        (By.XPATH, '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')))
+    return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')

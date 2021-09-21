@@ -4,7 +4,7 @@ Testing interact functionality.
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch, Mock
 
-from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account, get_bot
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account
 
 
 class InteractTest(TestCase):
@@ -48,11 +48,13 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
         self.mock_driver.find_element_by_xpath.assert_called_once_with("//div[@role='dialog']")
 
-    @patch('bot.stages.interact.get_bot', return_value=['@democracynow','@IlhanMN'])
+    @patch('bot.stages.bot_info.get_bot')
     @patch('bot.stages.interact.visit_account', return_value=True)
-    def test_retweet_posts(self, mock_get_bot, mock_visit_account):
-        username = 'fakeusername'
+    @patch('bot.stages.interact.like_post', return_value=None)
+    def test_retweet_posts(self, mock_get_bot, mock_visit_account, mock_like_post):
+        username = 'Melinda06678369'
         mock_tweet = Mock()
+        mock_get_bot.return_value = ['@democracynow','@IlhanMN']
         self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
         result = retweet_posts(self.mock_driver, username)
         self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
@@ -60,10 +62,8 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
 
     def test_visit_account(self):
-        pass
-
-    def test_get_bot(self):
-        pass
+        visit_account(self.mock_driver, '@SkyNews')
+        self.mock_driver.get.assert_called_with('https://twitter.com/@SkyNews')
 
 
 if __name__ == '__main__':

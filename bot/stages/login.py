@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from bot.stages.bot_info import bots
 from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.bot_info import get_bot
 
 FLAGS = flags.FLAGS
 
@@ -40,16 +41,32 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
   except Exception as e:
     logging.info("UNSURE: Alternate login screen shown.")
     try:
-      alternate_screen_login(driver, username, password)
-    except Exception as e:
-      logging.info(e)
-      return False
+      driver.get(TWITTER_LOGIN_URL)
 
-  if wait_for_page_load(driver):
-    logging.info('Successfully logged in.')
-    return True
-  else:
-    return False
+      e_username = WebDriverWait(driver, LOGIN_WAIT).until(
+          EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
+      e_pw = driver.find_element_by_name('session[password]')
+
+      e_username.send_keys(username)
+      e_pw.send_keys(password)
+      e_pw.send_keys(Keys.RETURN)
+
+    except Exception as e:
+      logging.info("UNSURE: Alternate login screen shown.")
+      try:
+        alternate_screen_login(driver, username, password)
+      except Exception as e:
+        logging.info(e)
+        return False
+
+    time.sleep(VERIFICATION_WAIT)
+    verify_phone_number(driver, username)
+
+    if wait_for_page_load(driver):
+      logging.info('Successfully logged in.')
+      return True
+    else:
+      return False
 
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
@@ -60,34 +77,27 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
     username.send_keys(Keys.RETURN)
 
     time.sleep(2)
-    password = driver.find_element_by_name("password")
+    password = driver.find_element(By.NAME, "password")
     password.send_keys(bot_password)
     password.send_keys(Keys.RETURN)
   except:
     return None
 
 
-def verify_phone_number(driver: Union[Firefox, Chrome], username: str) -> None:
+def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
   """Key-in phone number if phone number verification is presented."""
   try:
-    bot_info = None
-    for bot in bots:
-      if username == bot['username']:
-        bot_info = bot
-        break
-    if bot_info is None:
-      logging.error("Bot does not exist in bot_info.py")
-      return
-    phone_number = bot_info['phone_number']
-    # To ensure that the verification required is phone number verification.
-    hint = driver.find_element_by_xpath(
-        f"//strong[contains(text(), 'Your phone number ends in {phone_number[-2:]}')]")
+    account_phone_number = get_bot(bot_username, 'phone_number')
 
-    # Find the element to fill the phone number detail.
-    phone_number = driver.find_element_by_name('challenge_response')
+    # The text on twitter page will say "Your phone number ends in <last 2 digits of the phone number>"
+    xpath = "//strong[contains(text(), 'Your phone number ends in " + \
+        account_phone_number[-2:] + "')]"
+
+    # To ensure that the verification required is phone number verification.
+    hint = driver.find_element_by_xpath(xpath)
 
     # Fill in the element with phone number.
-    phone_number.send_keys(phone_number)
+    phone_number.send_keys(account_phone_number)
 
     # Hit enter.
     phone_number.send_keys(Keys.RETURN)
