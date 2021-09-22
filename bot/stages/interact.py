@@ -10,7 +10,7 @@ import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
 from selenium.webdriver import Chrome, Firefox
-from random import random
+from random import random, randint
 
 from bot.stages.bot_info import get_bot
 from bot.stages.scraping_util import get_follow_sidebar
@@ -26,7 +26,8 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
-from bot.stages.scraping_util import get_contents_and_likes
+from bot.stages.scraping_util import get_contents_and_likes 
+from bot.stages.scraping_util import click_retry_loading
 
 FLAGS = flags.FLAGS
 
@@ -53,8 +54,10 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     _scrape(driver, bot_username)
 
     # added randomisation to visiting account and retweeting tweets
-    if random() > 0.5:
+    if random() >= 0.5:
         retweet_posts(driver, bot_username)
+    else:
+        logging.info("Not visiting accounts this round, random probability < 0.5")
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     """Click 'Ok' on the policy update pop-up if present."""
@@ -75,6 +78,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     target = TARGET_AD_COUNT
     while target > 0:
         timeline = get_timeline(driver)
+        click_retry_loading(driver)
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
@@ -153,7 +157,12 @@ def _write_out_ad_collection():
 
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
-    for account in get_bot(bot_username, 'followed_accounts'):
+    accounts = get_bot(bot_username, 'followed_accounts')
+    accounts_to_visit = set()
+    for i in range(0, randint(0,len(accounts))):
+        accounts_to_visit.add(accounts[randint(0, len(accounts)-1)])
+
+    for account in accounts_to_visit:
         if visit_account(driver, account):
             # Call function to like tweets randomly
             like_post(driver, bot_username)
@@ -161,14 +170,15 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
             iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
             for i in range(iterate):
                 try:
-                    buttons_to_retweet[i].click()
-                    logging.info("Clicked on retweet.")
-                    # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
-                    try:
-                        driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-                        logging.info("Clicked on confirm retweet.")
-                    except Exception as e:
-                        continue
+                    if random() >= 0.5:
+                        buttons_to_retweet[i].click()
+                        logging.info("Clicked on retweet.")
+                        # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                        try:
+                            driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                            logging.info("Clicked on confirm retweet.")
+                        except Exception as e:
+                            continue
                 except:
                     pass
 
@@ -185,7 +195,7 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
         like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
             # randomise tweets to like
-            if random() > 0.5:
+            if random() >= 0.5:
                 try:
                     like_buttons[button].click()
                     logging.info(bot_username + " liked a tweet.")

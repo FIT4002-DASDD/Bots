@@ -8,10 +8,10 @@ from absl import logging, flags
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as EC, wait
 from selenium.webdriver.support.ui import WebDriverWait
 
-from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.scraping_util import wait_for_page_load, refresh_page
 from bot.stages.bot_info import get_bot
 
 FLAGS = flags.FLAGS
@@ -23,7 +23,11 @@ VERIFICATION_WAIT = 3
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
-        raise Exception('FAILURE. Log in was not successful.')
+        try:
+            if not wait_for_page_load(driver):
+                refresh_page(driver)
+        except:
+            raise Exception('FAILURE. Log in was not successful.')
 
 
 def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
@@ -67,7 +71,18 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
         password.send_keys(bot_password)
         password.send_keys(Keys.RETURN)
     except:
-        return None
+        try:
+            account_phone_number = get_bot(bot_username, 'phone_number')
+            phone_number = driver.find_element(By.NAME, "text")
+            phone_number.send_keys(account_phone_number)
+            phone_number.send_keys(Keys.RETURN)
+
+            time.sleep(2)
+            password = driver.find_element(By.NAME, "password")
+            password.send_keys(bot_password)
+            password.send_keys(Keys.RETURN)
+        except:
+            return None
 
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Key-in phone number if phone number verification is presented."""

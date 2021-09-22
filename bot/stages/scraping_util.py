@@ -76,7 +76,6 @@ def wait_for_page_load(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('New content loaded...')
     return True
 
-
 def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
     logging.info('Scrolling to lazy load more tweets...')
 
@@ -208,4 +207,16 @@ def get_contents_and_likes(driver: Union[Firefox, Chrome]) -> WebElement:
     except:
         WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.XPATH, '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')))
         return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
-    
+
+def click_retry_loading(driver: Union[Firefox, Chrome]) -> None:
+    """Function to click retry loading to ensure the timeline and sidebar loads elements."""
+    try:
+        buttons = driver.find_elements_by_xpath('//span[contains(text(), "Retry")]')
+        for button in buttons:
+            button.click()
+        
+        if not wait_for_page_load(driver):
+            refresh_page(driver)
+        return None
+    except:
+        return None
