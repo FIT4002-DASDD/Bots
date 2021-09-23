@@ -135,6 +135,8 @@ bots = {
         ]
     }
 }
+
+
 def get_bot(bot_username: str, info: str) -> Union[list, str]:
     """Function to get bot info from bot_info.py."""
     try:
