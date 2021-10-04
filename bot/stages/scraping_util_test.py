@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
+from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_tweet_content
 
 class ScrapingUtilTest(TestCase):
     @classmethod
@@ -133,10 +133,10 @@ class ScrapingUtilTest(TestCase):
         mock_promoted_follow.find_element.assert_called_once_with(By.XPATH, ".//a")
         mock_link.get_attribute.assert_called_once_with('href')
 
-    def test_get_contents_and_likes(self):
+    def test_get_tweet_content(self):
         mock_contents_and_likes = Mock()
         self.mock_driver.find_elements_by_xpath.return_value = mock_contents_and_likes
-        result = get_contents_and_likes(self.mock_driver)
+        result = get_tweet_content(self.mock_driver)
         self.assertEqual(mock_contents_and_likes, result)
         self.mock_driver.find_elements_by_xpath.assert_called_once_with('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
         

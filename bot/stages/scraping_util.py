@@ -200,8 +200,8 @@ def get_promoted_follow_link(promoted_follow: WebElement) -> str:
         logging.info("Follow link scrape failed")
     return link
 
-def get_contents_and_likes(driver: Union[Firefox, Chrome]) -> WebElement:
-    """Returns a twitter "Who to follow" sidebar WebElement."""
+def get_tweet_content(driver: Union[Firefox, Chrome]) -> WebElement:
+    """Returns a web element that contains the tweet contents."""
     try:
         return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
     except:
