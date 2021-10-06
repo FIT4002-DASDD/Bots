@@ -4,7 +4,7 @@ Testing interact functionality.
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch, Mock
 
-from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account
+from bot.stages.interact import interact, agree_to_policy_updates_if_exists, retweet_posts, visit_account, like_post
 
 
 class InteractTest(TestCase):
@@ -60,6 +60,11 @@ class InteractTest(TestCase):
         self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
         self.mock_driver.find_element_by_xpath.assert_called_with('//div[@data-testid="retweetConfirm"]')
         self.assertEqual(None, result)
+
+    def test_like_post(self):
+        like_post(self.mock_driver, 'ElizaHahns')
+        self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="like"]')
+
 
     def test_visit_account(self):
         visit_account(self.mock_driver, '@SkyNews')
