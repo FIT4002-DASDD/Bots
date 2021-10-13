@@ -39,8 +39,9 @@ class InteractTest(TestCase):
         """
         self.mock_driver = None
 
+
     def test_interact(self):
-        pass
+        pass    
 
     def test_agree_to_policy_updates_if_exists(self):
         self.mock_driver.find_element_by_xpath.return_value = None

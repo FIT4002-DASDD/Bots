@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_tweet_content, click_retry_loading, wait_for_page_load
+from bot.stages.scraping_util import get_promoted_tweet_official_link, get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_tweet_content, click_retry_loading, wait_for_page_load
 
 class ScrapingUtilTest(TestCase):
     @classmethod
@@ -115,7 +115,9 @@ class ScrapingUtilTest(TestCase):
         pass
 
     def test_get_promoted_tweet_official_link(self):
-        pass
+        mock_tweet = Mock()
+        get_promoted_tweet_official_link(mock_tweet)
+        mock_tweet.find_elements.assert_called_with(By.XPATH,".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role ""= 'link']")
 
     def test_get_promoted_follow(self):
         mock_promoted_follow = Mock()
