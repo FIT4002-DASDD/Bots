@@ -53,8 +53,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
     if wait_for_page_load(driver):
         logging.info('Successfully logged in.')
         return True
-    else:
-        return False
+    return False
 
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:

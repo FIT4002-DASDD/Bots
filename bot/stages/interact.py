@@ -47,8 +47,6 @@ LAST_WRITTEN_OUT = date.today() - timedelta(days=1)
 def interact(driver: Union[Firefox, Chrome], bot_username: str):
     """
     Executes the bot interaction flow and scrapes results.
-    Ideas (TBD):
-        - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
 
@@ -213,8 +211,7 @@ def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool
         if wait_for_page_load(driver):
             logging.info('Successfully visited account : ' + followed_account)
             return True
-        else:
-            return False
+        return False
 
     except Exception as e:
         print(e)
