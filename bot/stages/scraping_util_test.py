@@ -7,7 +7,10 @@ from unittest.mock import MagicMock, Mock, patch
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
+from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, \
+    refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, \
+    get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
+
 
 class ScrapingUtilTest(TestCase):
     @classmethod
@@ -80,7 +83,7 @@ class ScrapingUtilTest(TestCase):
 
     def test_wait_for_page_load_failure(self):
         pass
-    
+
     @patch('bot.stages.login.wait_for_page_load')
     def test_load_more_tweets(self, mock_wait_for_page_load):
         mock_wait_for_page_load.return_value = True
@@ -96,12 +99,14 @@ class ScrapingUtilTest(TestCase):
     def test_search_promoted_tweet_in_timeline(self):
         mock_timeline = Mock()
         search_promoted_tweet_in_timeline(mock_timeline)
-        mock_timeline.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
-        
+        mock_timeline.find_element.assert_called_once_with(By.XPATH,
+                                                           ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
+
     def test_search_promoted_follow_in_sidebar(self):
         mock_sidebar = Mock()
         search_promoted_follow_in_sidebar(mock_sidebar)
-        mock_sidebar.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
+        mock_sidebar.find_element.assert_called_once_with(By.XPATH,
+                                                          ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
 
     def test_get_promoted_author(self):
         mock_promoted_tweet = Mock()
@@ -138,8 +143,8 @@ class ScrapingUtilTest(TestCase):
         self.mock_driver.find_elements_by_xpath.return_value = mock_contents_and_likes
         result = get_contents_and_likes(self.mock_driver)
         self.assertEqual(mock_contents_and_likes, result)
-        self.mock_driver.find_elements_by_xpath.assert_called_once_with('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
-        
+        self.mock_driver.find_elements_by_xpath.assert_called_once_with(
+            '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
 
 
 if __name__ == '__main__':

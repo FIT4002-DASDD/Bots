@@ -1,5 +1,7 @@
-from absl import logging
+"""Contains the bots data dictionary."""
 from typing import Union
+
+from absl import logging
 
 bots = {
     'ElizaHahns': {
@@ -135,6 +137,8 @@ bots = {
         ]
     }
 }
+
+
 def get_bot(bot_username: str, info: str) -> Union[list, str]:
     """Function to get bot info from bot_info.py."""
     try:

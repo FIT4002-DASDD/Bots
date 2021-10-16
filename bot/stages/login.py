@@ -11,8 +11,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from bot.stages.scraping_util import wait_for_page_load
 from bot.stages.bot_info import get_bot
+from bot.stages.scraping_util import wait_for_page_load
 
 FLAGS = flags.FLAGS
 
@@ -20,6 +20,7 @@ TWITTER_LOGIN_URL = 'https://twitter.com/login'
 
 LOGIN_WAIT = 10
 VERIFICATION_WAIT = 3
+
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
@@ -37,14 +38,14 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
         e_username.send_keys(username)
         e_pw.send_keys(password)
         e_pw.send_keys(Keys.RETURN)
-        
+
     except Exception as e:
         logging.info("UNSURE: Alternate login screen shown.")
         try:
             alternate_screen_login(driver, username, password)
         except Exception as e:
             logging.info(e)
-            return False        
+            return False
 
     time.sleep(VERIFICATION_WAIT)
     verify_phone_number(driver, username)
@@ -54,6 +55,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
         return True
     else:
         return False
+
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
     """Function to login with the alternate Twitter login interface."""
@@ -69,6 +71,7 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
     except:
         return None
 
+
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Key-in phone number if phone number verification is presented."""
     try:
@@ -76,7 +79,7 @@ def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> No
 
         # The text on twitter page will say "Your phone number ends in <last 2 digits of the phone number>"
         xpath = "//strong[contains(text(), 'Your phone number ends in " + account_phone_number[-2:] + "')]"
-        
+
         # To ensure that the verification required is phone number verification.
         hint = driver.find_element_by_xpath(xpath)
 

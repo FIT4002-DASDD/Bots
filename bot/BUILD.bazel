@@ -16,9 +16,3 @@ py_binary(
         requirement("selenium"),
     ],
 )
-
-py_library(
-    name = "constants",
-    srcs = ["constants.py"],
-    visibility = ["//bot:__subpackages__"],
-)

@@ -3,6 +3,7 @@ Module for defining the bot twitter interaction flow.
 """
 import time
 from datetime import date, timedelta
+from random import random
 from typing import Union
 
 import proto.ad_pb2 as ad_pb2
@@ -10,9 +11,9 @@ import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
 from selenium.webdriver import Chrome, Firefox
-from random import random
 
 from bot.stages.bot_info import get_bot
+from bot.stages.scraping_util import get_contents_and_likes
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
@@ -26,7 +27,6 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
-from bot.stages.scraping_util import get_contents_and_likes
 
 FLAGS = flags.FLAGS
 
@@ -56,6 +56,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     if random() > 0.5:
         retweet_posts(driver, bot_username)
 
+
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     """Click 'Ok' on the policy update pop-up if present."""
     try:
@@ -65,6 +66,7 @@ def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
     except:
         # No policy update found, continue as normal.
         return None
+
 
 def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     """Scrapes the bot's timeline for Promoted content."""
@@ -86,7 +88,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
             try:
                 if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'relevant_tags')):
                     xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
-                                        f'::div[4]//div[@data-testid="like"]'
+                                      f'::div[4]//div[@data-testid="like"]'
                     like_button = driver.find_element_by_xpath(xpath_with_text)
                     like_button.click()
                     logging.info(bot_username + " liked a tweet.")
@@ -129,12 +131,14 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         logging.info('Writing out AdCollection as one day has elapsed.')
         _write_out_ad_collection()
 
+
 def _should_flush_ad_collection() -> bool:
     """
     Whether the ads stored in the AdCollection need to be written out.
     Ads will be flushed ONCE a DAY.
     """
     return date.today() > LAST_WRITTEN_OUT
+
 
 def _write_out_ad_collection():
     """Serializes the AdCollection proto and writes it out to a binary file."""
@@ -151,6 +155,7 @@ def _write_out_ad_collection():
         # Clear the ads.
         ad_collection.Clear()
 
+
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
     for account in get_bot(bot_username, 'followed_accounts'):
@@ -158,7 +163,8 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
             # Call function to like tweets randomly
             like_post(driver, bot_username)
             buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
-            iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
+            iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(
+                buttons_to_retweet)
             for i in range(iterate):
                 try:
                     buttons_to_retweet[i].click()
@@ -179,6 +185,7 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
     return None
 
+
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to randomly like tweets."""
     try:
@@ -193,8 +200,9 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
                     continue
     except Exception as e:
         pass
-    
+
     return None
+
 
 def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool:
     """Function to visit a Twitter account page."""
@@ -211,4 +219,3 @@ def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool
     except Exception as e:
         print(e)
         return False
-
