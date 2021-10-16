@@ -1,5 +1,6 @@
 #include "push_service_util.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <regex>
@@ -26,20 +27,39 @@ using ::dasdd::proto::AdCollection;
 using ::dasdd::proto::Bot;
 using ::google::protobuf::util::TimeUtil;
 
-constexpr char kTwitterAdTableName[] = "twitter_ad_test";
-constexpr char kBucketName[] =
-    "dasdd-dev-stack-dasddadimagesstaging-1jz4qtcqsz6p3";
+constexpr char kTwitterBotTableName[] = "twitter_bot";
+constexpr char kTwitterAdTableName[] = "twitter_ad";
+constexpr char kTwitterAdSeenByBotTableName[] = "twitter_ad_seen_by_bot";
 
-// Constructs an INSERT query to insert an Ad's data into the Twitter Ad table.
-std::string ConstructAdInsertQuery(const Ad& ad, const pqxx::work& w) {
-  return absl::StrFormat(
-      "INSERT INTO %s (\"promoterHandle\",\"content\","
+constexpr char kBucketName[] = "dasdd-core-stack-dasddadimages-1cag3jbw34wo3";
+
+// Constructs an INSERT query to insert a Bot and Ad's data into the appropriate
+// tables.
+std::string ConstructInsertQuery(const Bot& bot, const Ad& ad,
+                                 const std::string& screenshot_s3_url,
+                                 const pqxx::work& w) {
+  const std::string bot_query = absl::StrFormat(
+      "INSERT INTO %s (\"id\", \"username\") "
+      "VALUES ('%s', '%s') ON CONFLICT DO "
+      "NOTHING;",
+      kTwitterBotTableName, bot.id(), bot.id());
+  const std::string ad_query = absl::StrFormat(
+      "INSERT INTO %s (\"promoterHandle\",\"content\",\"image\","
       "\"officialLink\",\"tweetLink\",\"adType\") "
-      "VALUES ('%s', '%s', '%s', '%s', '%s') "
+      "VALUES ('%s', '%s', '%s', '%s', '%s', '%s') "
       "ON CONFLICT DO NOTHING;",
       kTwitterAdTableName, w.esc(ad.promoter_handle()), w.esc(ad.content()),
-      w.esc(ad.official_ad_link()), w.esc(ad.seen_on()),
-      w.esc(Ad::AdType_Name(ad.ad_type())));
+      w.esc(screenshot_s3_url), w.esc(ad.official_ad_link()),
+      w.esc(ad.seen_on()), w.esc(Ad::AdType_Name(ad.ad_type())));
+  const std::string ad_seen_by_bot_query = absl::StrFormat(
+      "INSERT INTO %s (\"adId\", \"botId\", \"createdAt\") "
+      "SELECT id as adId, '%s', timestamp '%s' FROM %s WHERE \"tweetLink\" = "
+      "'%s';",
+      kTwitterAdSeenByBotTableName, bot.id(),
+      w.esc(TimeUtil::ToString(ad.created_at())), kTwitterAdTableName,
+      w.esc(ad.seen_on()));
+
+  return absl::StrFormat("%s %s %s", bot_query, ad_query, ad_seen_by_bot_query);
 }
 
 // Uploads a given image (in bytestring) format to S3 and returns its URL.
@@ -65,8 +85,8 @@ ABSL_MUST_USE_RESULT std::string UploadAdImage(
     return "";
   }
   // TODO: Verify this URL.
-  return absl::StrFormat("https://%s.ap-southeast-2/%s", kBucketName,
-                         object_name);
+  return absl::StrFormat("https://%s.s3.%s.amazonaws.com/twitter/%s",
+                         kBucketName, std::getenv("AWS_REGION"), object_name);
 }
 
 }  // namespace
@@ -87,7 +107,8 @@ absl::Status UploadAdCollection(const AdCollection& ad_collection,
     // Upload the rest of the Ad to RDS.
     try {
       pqxx::work w(connection);
-      w.exec(ConstructAdInsertQuery(ad, w));
+      w.exec(
+          ConstructInsertQuery(ad_collection.bot(), ad, screenshot_s3_url, w));
       w.commit();
     } catch (const std::exception& ex) {
       return absl::InternalError(

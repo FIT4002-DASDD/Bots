@@ -14,7 +14,7 @@
 #include "push-service/connection/connection_manager.h"
 #include "push-service/push_service_util.h"
 
-ABSL_FLAG(uint64_t, cycle_time_minutes, 5,
+ABSL_FLAG(uint64_t, cycle_time_minutes, 600,
           "Set the time for which the Push Service cycle repeats");
 
 ABSL_FLAG(std::string, bot_output_directory, "",
@@ -26,7 +26,7 @@ using ::dasdd::proto::AdCollection;
 
 // To be used when implementing thread pool.
 constexpr unsigned int kParallelThreadCount =
-    5;  // Upto std::thread::hardware_concurrency() limit
+    4;  // Upto std::thread::hardware_concurrency() limit
 
 void PrintWelcomeText() {
   LOG(INFO) << "Running Push Service...";
@@ -48,7 +48,9 @@ ABSL_ATTRIBUTE_NORETURN void Dispatch() {
         auto upload_status = UploadAdCollection(ad_collection, cm.s3_client(),
                                                 *cm.rds_connection());
         if (!upload_status.ok()) {
-          LOG(ERROR) << "Unable to upload this AdCollection.";
+          LOG(ERROR) << absl::StrFormat(
+              "Unable to upload this AdCollection. Error: %s",
+              upload_status.message());
         } else {
           // We're done with uploading the current proto; it can be deleted.
           std::filesystem::remove(path);
