@@ -3,9 +3,11 @@ Testing login functionality.
 """
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch, Mock
-from selenium.webdriver.common.keys import Keys
+
 from selenium.webdriver.common.by import By
-from bot.stages.login import login_or_die, alternate_screen_login, verify_phone_number
+from selenium.webdriver.common.keys import Keys
+
+from bot.stages.login import login_or_die, alternate_screen_login
 
 
 class LoginTest(TestCase):
@@ -65,10 +67,8 @@ class LoginTest(TestCase):
         self.mock_driver.find_element_by_name.return_value = mock_username
         self.mock_driver.find_element.return_value = mock_password
         alternate_screen_login(self.mock_driver, username, password)
-        self.mock_driver.find_element_by_name.assert_called_once_with(
-            'username')
-        self.mock_driver.find_element.assert_called_once_with(
-            By.NAME, 'password')
+        self.mock_driver.find_element_by_name.assert_called_once_with('username')
+        self.mock_driver.find_element.assert_called_once_with(By.NAME, 'password')
         mock_username.send_keys.assert_called_with(Keys.RETURN)
         mock_password.send_keys.assert_called_with(Keys.RETURN)
 

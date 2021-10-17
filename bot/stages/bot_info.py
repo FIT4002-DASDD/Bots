@@ -1,5 +1,7 @@
-from absl import logging
+"""Contains the bots data dictionary."""
 from typing import Union
+
+from absl import logging
 
 bots = {
     'ElizaHahns': {
@@ -137,11 +139,10 @@ bots = {
 }
 
 
-def get_bot(bot_username: str, info: str) -> Union[list, str]:
+def get_bot(bot_username: str, info: str) -> Union[list, str, None]:
     """Function to get bot info from bot_info.py."""
     try:
-        bot = bots[bot_username][info]
-        return bot
+        return bots[bot_username][info]
     except:
         logging.error("Bot does not exist in bot_info.py")
         return

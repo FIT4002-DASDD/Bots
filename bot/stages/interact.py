@@ -3,6 +3,7 @@ Module for defining the bot twitter interaction flow.
 """
 import time
 from datetime import date, timedelta
+from random import random
 from typing import Union
 
 import proto.ad_pb2 as ad_pb2
@@ -14,6 +15,7 @@ from datetime import datetime
 from random import random, randint
 
 from bot.stages.bot_info import get_bot
+from bot.stages.scraping_util import get_contents_and_likes
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
@@ -28,7 +30,6 @@ from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
 from bot.stages.scraping_util import get_contents_and_likes
-from bot.stages.scraping_util import click_retry_loading
 
 FLAGS = flags.FLAGS
 
@@ -45,8 +46,6 @@ ad_collection = ad_pb2.AdCollection()
 def interact(driver: Union[Firefox, Chrome], bot_username: str):
     """
     Executes the bot interaction flow and scrapes results.
-    Ideas (TBD):
-        - Have the driver auto-like the first 5 posts on their timeline - can this be done w/ the Twitter API instead?
     """
     _scrape(driver, bot_username)
     # added randomisation to visiting account and retweeting tweets
@@ -55,6 +54,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     else:
         logging.info(
             "Not visiting accounts this round, random probability < 0.5")
+
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -77,7 +77,6 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     target = TARGET_AD_COUNT
     while target > 0:
         timeline = get_timeline(driver)
-        click_retry_loading(driver)
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
@@ -89,7 +88,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
             try:
                 if any(tag in contents_and_likes[element].text for tag in get_bot(bot_username, 'relevant_tags')):
                     xpath_with_text = f'//span[contains(text(),"{contents_and_likes[element].text}")]//ancestor' \
-                        f'::div[4]//div[@data-testid="like"]'
+                                      f'::div[4]//div[@data-testid="like"]'
                     like_button = driver.find_element_by_xpath(xpath_with_text)
                     like_button.click()
                     logging.info(bot_username + " liked a tweet.")
@@ -131,6 +130,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
 
         target -= 1
     _write_out_ad_collection()
+
 
 
 def _write_out_ad_collection():
@@ -183,6 +183,7 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
             logging.error("Account visit failed.")
 
 
+
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to randomly like tweets."""
     try:
@@ -211,8 +212,7 @@ def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool
         if wait_for_page_load(driver):
             logging.info('Successfully visited account : ' + followed_account)
             return True
-        else:
-            return False
+        return False
 
     except Exception as e:
         print(e)

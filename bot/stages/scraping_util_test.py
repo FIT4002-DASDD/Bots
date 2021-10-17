@@ -7,7 +7,10 @@ from unittest.mock import MagicMock, Mock, patch
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
+from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, \
+    refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, \
+    get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
+
 
 
 class ScrapingUtilTest(TestCase):
