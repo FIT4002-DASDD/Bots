@@ -74,7 +74,7 @@ def main():
 
     results = []
     for bot in bots:
-        cmd = f"{BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}' --debug=False"
+        cmd = f"python3 {BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}' --debug=False"
         results.append(pool.apply_async(call_proc, (cmd, bot, )))
 
     # Close the pool and wait for each running task to complete
