@@ -9,23 +9,15 @@ if ! command -v python3 &>/dev/null; then
 fi
 
 # Install node
-if ! command -v nvm &>/dev/null; then
-  echo "Node not found, installing..."
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-  . ~/.nvm/nvm.sh
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
-fi
-if ! command -v node &>/dev/null; then
-  nvm install node
+if ! command -v npm &>/dev/null; then
+  sudo apt-get install -y npm
 fi
 
 # Install bazel via bazelisk
 if ! command -v bazel &>/dev/null; then
   echo "Bazel not found, installing..."
   npm install -g @bazel/bazelisk
-  sudo apt-get install gcc gcc-c++ -y
+  sudo apt-get install gcc g++ -y
 fi
 
 # Install firefox (see: https://gist.github.com/lumodon/50d2a97b49056f52b1d5c7a63b9ed979_
