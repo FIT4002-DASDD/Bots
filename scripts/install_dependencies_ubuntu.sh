@@ -16,7 +16,7 @@ fi
 # Install bazel via bazelisk
 if ! command -v bazel &>/dev/null; then
   echo "Bazel not found, installing..."
-  npm install -g @bazel/bazelisk
+  sudo npm install -g @bazel/bazelisk
   sudo apt-get install gcc g++ -y
 fi
 
