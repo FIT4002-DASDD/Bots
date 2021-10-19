@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Update yum packages
-sudo yum update -y
+# Update apt-get packages
+sudo apt-get update -y
 
 # Install python 3
 if ! command -v python3 &>/dev/null; then
