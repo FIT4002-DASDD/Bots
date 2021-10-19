@@ -17,7 +17,7 @@ from datetime import datetime
 
 # Time in seconds between schedule cycles
 # A complete schedule cycle means that *each* bot has completed its own cycle
-SLEEP_TIME = 3600
+SLEEP_TIME = 5000
 
 # Number of concurrent bots / worker threads
 CONCURRENT_BOTS = multiprocessing.cpu_count()
