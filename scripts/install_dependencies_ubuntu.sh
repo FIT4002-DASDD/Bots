@@ -30,9 +30,7 @@ fi
 
 # Install firefox (see: https://gist.github.com/lumodon/50d2a97b49056f52b1d5c7a63b9ed979_
 if ! command -v firefox &>/dev/null; then
-  wget "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux&lang=en-US" -O "/usr/local/firefox.bz2"
-  sudo tar -xvf $(echo /usr/local/firefox.bz2) -C /usr/local/
-  sudo apt-get install -y nss zlib sqlite java xvfb xorg-x11-server-Xvfb libvpx glibc.i686 libgcc_s.so.1 libstdc++.so.6 libatomic.so.1 libgtk-3.so.0 libdbus-glib-1.so.2 libXt.so.6
+  sudo apt-get install -y firefox
 fi
 
 # Install AWS SDK dependencies
