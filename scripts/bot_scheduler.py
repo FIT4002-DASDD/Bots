@@ -6,14 +6,14 @@ After all the bots are finished, it'll sleep for SLEEP_TIME seconds before conti
 
 Check the constant belows to configure the schedule behaviour and input and output directories
 """
-import subprocess
-import shlex
-import time
-from multiprocessing.pool import ThreadPool
+import csv
 import multiprocessing
 import os
-import csv
+import shlex
+import subprocess
+import time
 from datetime import datetime
+from multiprocessing.pool import ThreadPool
 
 # Time in seconds between schedule cycles
 # A complete schedule cycle means that *each* bot has completed its own cycle
@@ -35,6 +35,7 @@ LOG_DIR = f"{BOT_OUTPUT_DIR}/logs"
 # Path to csv file with bot info
 BOT_CSV_PATH = f"{DIRNAME}/bot-info.csv"
 
+
 def call_proc(cmd, bot):
     """ This runs in a separate thread. """
     current_time = datetime.now()
@@ -43,7 +44,7 @@ def call_proc(cmd, bot):
     log_dir = f"{LOG_DIR}/{year}/{month}"
     timestamp = int(current_time.timestamp())
 
-    if not os.path.exists(log_dir): 
+    if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
     filename = f"{log_dir}/{bot['username']}_{current_time.strftime('%Y%m%d')}_{timestamp}.log"
@@ -52,8 +53,9 @@ def call_proc(cmd, bot):
         with subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
             for line in p.stderr:
                 f.write(line.decode('utf8'))
-                f.flush()   # to write logs in real time
+                f.flush()  # to write logs in real time
     return
+
 
 def read_bot_csv(bot_file_dir):
     bots = []
@@ -74,15 +76,17 @@ def main():
 
     results = []
     for bot in bots:
-        cmd = f"python3 {BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' --bot_output_directory='{BOT_OUTPUT_DIR}' --debug=False"
-        results.append(pool.apply_async(call_proc, (cmd, bot, )))
+        cmd = f"python3 {BOT_BIN_PATH} --bot_username='{bot['username']}' --bot_password='{bot['password']}' " \
+              f"--bot_output_directory='{BOT_OUTPUT_DIR}' --debug=False "
+        results.append(pool.apply_async(call_proc, (cmd, bot,)))
 
     # Close the pool and wait for each running task to complete
     pool.close()
     pool.join()
     print("All bots have finished their cycles")
 
-if (__name__ == "__main__"):
+
+if __name__ == "__main__":
     while True:
         main()
         print(f"Sleeping for {SLEEP_TIME}s")
