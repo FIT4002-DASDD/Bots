@@ -1,18 +1,19 @@
-version: 0.0
-os: linux
-files:
-  - source: /  # Copy all in current directory
-    destination: /home/ec2-user/FIT4002-DASDD-Bots
-hooks:
-  BeforeInstall:
-    - location: scripts/install_dependencies.sh
-      timeout: 300
-      runas: root
-  ApplicationStart:
-    - location: scripts/start_server.sh
-      timeout: 300
-      runas: root
-  ApplicationStop:
-    - location: scripts/stop_server.sh
-      timeout: 300
-      runas: root
+# NOTE: CodeDeploy no longer used in favor of building and deploying straight from GitHub Actions
+#version: 0.0
+#os: linux
+#files:
+#  - source: /  # Copy all in current directory
+#    destination: /home/ec2-user/FIT4002-DASDD-Bots
+#hooks:
+#  BeforeInstall:
+#    - location: scripts/install_dependencies.sh
+#      timeout: 300
+#      runas: root
+#  ApplicationStart:
+#    - location: scripts/start_server.sh
+#      timeout: 300
+#      runas: root
+#  ApplicationStop:
+#    - location: scripts/stop_server.sh
+#      timeout: 300
+#      runas: root
