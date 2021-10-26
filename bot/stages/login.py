@@ -8,11 +8,11 @@ from absl import logging, flags
 from selenium.webdriver import Firefox, Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC, wait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from bot.stages.scraping_util import wait_for_page_load, refresh_page
 from bot.stages.bot_info import get_bot
+from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import wait_for_page_load
 
 FLAGS = flags.FLAGS
@@ -61,7 +61,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
             try:
                 alternate_screen_login(driver, username, password)
             except Exception as e:
-                logging.info(e)
+                logging.error(e)
                 return False
 
         time.sleep(VERIFICATION_WAIT)
@@ -98,7 +98,6 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
             password.send_keys(Keys.RETURN)
         except:
             return None
-
 
 
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:

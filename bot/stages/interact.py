@@ -2,8 +2,8 @@
 Module for defining the bot twitter interaction flow.
 """
 import time
-from datetime import date, timedelta
-from random import random
+from datetime import datetime
+from random import random, randint
 from typing import Union
 
 import proto.ad_pb2 as ad_pb2
@@ -11,8 +11,6 @@ import proto.bot_pb2 as bot_pb2
 from absl import flags
 from absl import logging
 from selenium.webdriver import Chrome, Firefox
-from datetime import datetime
-from random import random, randint
 
 from bot.stages.bot_info import get_bot
 from bot.stages.scraping_util import get_contents_and_likes
@@ -29,7 +27,6 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
-from bot.stages.scraping_util import get_contents_and_likes
 
 FLAGS = flags.FLAGS
 
@@ -52,9 +49,7 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
     if random() >= 0.5:
         retweet_posts(driver, bot_username)
     else:
-        logging.info(
-            "Not visiting accounts this round, random probability < 0.5")
-
+        logging.info('Not visiting accounts this cycle, random probability < 0.5')
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -100,8 +95,7 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
         if promoted_in_follow_sidebar:
             ad = ad_collection.ads.add()
             ad.ad_type = ad_pb2.Ad.AdType.AD_TYPE_FOLLOW
-            ad.promoter_handle = get_promoted_follow(
-                promoted_in_follow_sidebar)
+            ad.promoter_handle = get_promoted_follow(promoted_in_follow_sidebar)
             ad.created_at.GetCurrentTime()
             ad.seen_on = get_promoted_follow_link(promoted_in_follow_sidebar)
 
@@ -114,10 +108,8 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
             ad.content = promoted_in_timeline.text
             ad.promoter_handle = get_promoted_author(promoted_in_timeline)
             ad.screenshot = take_element_screenshot(promoted_in_timeline)
-            # This sets the field:  https://stackoverflow.com/a/65138505/15507541
-            ad.created_at.GetCurrentTime()
-            ad.official_ad_link = get_promoted_tweet_official_link(
-                promoted_in_timeline)
+            ad.created_at.GetCurrentTime()  # This sets the field:  https://stackoverflow.com/a/65138505/15507541
+            ad.official_ad_link = get_promoted_tweet_official_link(promoted_in_timeline)
             ad.seen_on = get_promoted_tweet_link(promoted_in_timeline, driver)
 
             refresh = True
@@ -132,7 +124,6 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     _write_out_ad_collection()
 
 
-
 def _write_out_ad_collection():
     """Serializes the AdCollection proto and writes it out to a binary file."""
     # Path to the binary file containing the serialized protos for this bot.
@@ -140,8 +131,7 @@ def _write_out_ad_collection():
     location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{current_time.strftime("%Y%m%d")}_{int(current_time.timestamp())}_out'
     with open(location, 'wb') as f:
         f.write(ad_collection.SerializeToString())
-        logging.info(
-            f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
+        logging.info(f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
 
         # Clear the ads.
         ad_collection.Clear()
@@ -152,25 +142,23 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     accounts = get_bot(bot_username, 'followed_accounts')
     accounts_to_visit = set()
     for i in range(0, randint(0, len(accounts))):
-        accounts_to_visit.add(accounts[randint(0, len(accounts)-1)])
+        accounts_to_visit.add(accounts[randint(0, len(accounts) - 1)])
 
     for account in accounts_to_visit:
         if visit_account(driver, account):
             # Call function to like tweets randomly
             like_post(driver, bot_username)
-            buttons_to_retweet = driver.find_elements_by_xpath(
-                '//div[@data-testid="retweet"]')
-            iterate = TARGET_RETWEET_COUNT if len(
-                buttons_to_retweet) > TARGET_RETWEET_COUNT else len(buttons_to_retweet)
+            buttons_to_retweet = driver.find_elements_by_xpath('//div[@data-testid="retweet"]')
+            iterate = TARGET_RETWEET_COUNT if len(buttons_to_retweet) > TARGET_RETWEET_COUNT else len(
+                buttons_to_retweet)
             for i in range(iterate):
                 try:
                     if random() >= 0.5:
                         buttons_to_retweet[i].click()
                         logging.info("Clicked on retweet.")
-                        # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                        # if a popup says 'are you sure you want to retweet before reading', this will retweet anyway
                         try:
-                            driver.find_element_by_xpath(
-                                '//div[@data-testid="retweetConfirm"]').click()
+                            driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
                             logging.info("Clicked on confirm retweet.")
                         except Exception as e:
                             continue
@@ -183,12 +171,10 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
             logging.error("Account visit failed.")
 
 
-
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to randomly like tweets."""
     try:
-        like_buttons = driver.find_elements_by_xpath(
-            '//div[@data-testid="like"]')
+        like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
             # randomise tweets to like
             if random() >= 0.5:

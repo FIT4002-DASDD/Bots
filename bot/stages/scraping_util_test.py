@@ -12,7 +12,6 @@ from bot.stages.scraping_util import get_timeline, load_more_tweets, take_elemen
     get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
 
 
-
 class ScrapingUtilTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:

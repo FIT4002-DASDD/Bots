@@ -53,8 +53,7 @@ def _take_screenshot_and_save_to_file(web_element: WebElement):
     global SCREENSHOT_COUNT
     screenshot_filename = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
     if web_element.screenshot(screenshot_filename):
-        logging.info(
-            f'Successfully captured screenshot: {screenshot_filename}')
+        logging.info(f'Successfully captured screenshot: {screenshot_filename}')
         SCREENSHOT_COUNT += 1
 
 
@@ -98,8 +97,7 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
     logging.info('Searching timeline for promoted tweets...')
 
     try:
-        promoted = timeline.find_element(
-            By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
+        promoted = timeline.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
         logging.info('Found a promoted tweet.')
         return promoted
     except NoSuchElementException:
@@ -111,8 +109,7 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
     logging.info('Searching sidebar for promoted follows...')
 
     try:
-        promoted = sidebar.find_element(
-            By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
+        promoted = sidebar.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
         logging.info('Found a promoted follow.')
         return promoted
     except NoSuchElementException:
@@ -121,8 +118,7 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
 
 
 def get_promoted_author(promoted_tweet: WebElement) -> str:
-    promoter = promoted_tweet.find_element(
-        By.XPATH, ".//*[contains(text(), '@')]")
+    promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
 
 
@@ -139,8 +135,7 @@ def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
     """
     previous_url = driver.current_url
     try:
-        promoted_icon = promoted_tweet.find_element(
-            By.XPATH, ".//*[contains(text(), 'Promoted')]")
+        promoted_icon = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), 'Promoted')]")
         promoted_icon.click()
         max_wait_time = 10
         current_wait_time = 0
@@ -178,8 +173,7 @@ def get_promoted_tweet_official_link(promoted_tweet: WebElement) -> str:
                                                        ".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role "
                                                        "= 'link']")
         tweet_official_link = list_of_element[-1].get_attribute('href')
-        logging.info("Official link scraped successfully: " +
-                     tweet_official_link)
+        logging.info("Official link scraped successfully: " + tweet_official_link)
     except Exception as e:
         print(e)
         tweet_official_link = ""
@@ -198,8 +192,7 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
         the handle of the promoted account as a string
     """
     try:
-        promoter = promoted_follow.find_element(
-            By.XPATH, ".//*[contains(text(), '@')]")
+        promoter = promoted_follow.find_element(By.XPATH, ".//*[contains(text(), '@')]")
         handle = promoter.get_attribute('innerHTML')
         logging.info("Scraped promoted follow: " + handle)
     except Exception as e:
@@ -211,8 +204,7 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
 
 def get_promoted_follow_link(promoted_follow: WebElement) -> str:
     try:
-        link = promoted_follow.find_element(
-            By.XPATH, ".//a").get_attribute('href')
+        link = promoted_follow.find_element(By.XPATH, ".//a").get_attribute('href')
     except Exception as e:
         print(e)
         link = ""
