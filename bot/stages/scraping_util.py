@@ -24,8 +24,8 @@ def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
     try:
         return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
     except:
-        WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, "//div[@data-testid='primaryColumn']")))
+        WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
+            (By.XPATH, "//div[@data-testid='primaryColumn']")))
         return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
 
 
@@ -34,8 +34,8 @@ def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
     try:
         return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
     except:
-        WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, "//aside[@aria-label='Who to follow']")))
+        WebDriverWait(driver, 5).until(EC.visibility_of_element_located(
+            (By.XPATH, "//aside[@aria-label='Who to follow']")))
         return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
 
 

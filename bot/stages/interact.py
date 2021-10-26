@@ -2,8 +2,8 @@
 Module for defining the bot twitter interaction flow.
 """
 import time
-from datetime import date, timedelta
-from random import random
+from datetime import datetime
+from random import random, randint
 from typing import Union
 
 import proto.ad_pb2 as ad_pb2
@@ -31,7 +31,7 @@ from bot.stages.scraping_util import wait_for_page_load
 FLAGS = flags.FLAGS
 
 # This is just an aim - there is no guarantee this target will be met.
-TARGET_AD_COUNT = 2
+TARGET_AD_COUNT = 4
 
 # This is just an aim for how many tweets to retweet
 TARGET_RETWEET_COUNT = 3
@@ -39,20 +39,17 @@ TARGET_RETWEET_COUNT = 3
 # Buffers ads until they need to be written out.
 ad_collection = ad_pb2.AdCollection()
 
-# Tracks when the AdCollection was last written out.
-# Subtract one day so we write out on the first invocation.
-LAST_WRITTEN_OUT = date.today() - timedelta(days=1)
-
 
 def interact(driver: Union[Firefox, Chrome], bot_username: str):
     """
     Executes the bot interaction flow and scrapes results.
     """
     _scrape(driver, bot_username)
-
     # added randomisation to visiting account and retweeting tweets
-    if random() > 0.5:
+    if random() >= 0.5:
         retweet_posts(driver, bot_username)
+    else:
+        logging.info('Not visiting accounts this cycle, random probability < 0.5')
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -124,28 +121,14 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
                 refresh_page(driver)
 
         target -= 1
-
-    if _should_flush_ad_collection():
-        logging.info('Writing out AdCollection as one day has elapsed.')
-        _write_out_ad_collection()
-
-
-def _should_flush_ad_collection() -> bool:
-    """
-    Whether the ads stored in the AdCollection need to be written out.
-    Ads will be flushed ONCE a DAY.
-    """
-    return date.today() > LAST_WRITTEN_OUT
+    _write_out_ad_collection()
 
 
 def _write_out_ad_collection():
     """Serializes the AdCollection proto and writes it out to a binary file."""
-    global LAST_WRITTEN_OUT
-    # Update when the collection was last written out.
-    LAST_WRITTEN_OUT = date.today()
-
     # Path to the binary file containing the serialized protos for this bot.
-    location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{LAST_WRITTEN_OUT.strftime("%Y-%m-%d")}_out'
+    current_time = datetime.now()
+    location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{current_time.strftime("%Y%m%d")}_{int(current_time.timestamp())}_out'
     with open(location, 'wb') as f:
         f.write(ad_collection.SerializeToString())
         logging.info(f'Ad data for {FLAGS.bot_username} has been written out to: {location}')
@@ -156,7 +139,12 @@ def _write_out_ad_collection():
 
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to retweet posts from followed accounts."""
-    for account in get_bot(bot_username, 'followed_accounts'):
+    accounts = get_bot(bot_username, 'followed_accounts')
+    accounts_to_visit = set()
+    for i in range(0, randint(0, len(accounts))):
+        accounts_to_visit.add(accounts[randint(0, len(accounts) - 1)])
+
+    for account in accounts_to_visit:
         if visit_account(driver, account):
             # Call function to like tweets randomly
             like_post(driver, bot_username)
@@ -165,14 +153,15 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
                 buttons_to_retweet)
             for i in range(iterate):
                 try:
-                    buttons_to_retweet[i].click()
-                    logging.info("Clicked on retweet.")
-                    # in case a popup says 'are you sure you want to retweet before reading', this will retweet anyway
-                    try:
-                        driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
-                        logging.info("Clicked on confirm retweet.")
-                    except Exception as e:
-                        continue
+                    if random() >= 0.5:
+                        buttons_to_retweet[i].click()
+                        logging.info("Clicked on retweet.")
+                        # if a popup says 'are you sure you want to retweet before reading', this will retweet anyway
+                        try:
+                            driver.find_element_by_xpath('//div[@data-testid="retweetConfirm"]').click()
+                            logging.info("Clicked on confirm retweet.")
+                        except Exception as e:
+                            continue
                 except:
                     pass
 
@@ -181,8 +170,6 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
         else:
             logging.error("Account visit failed.")
 
-    return None
-
 
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
     """Function to randomly like tweets."""
@@ -190,7 +177,7 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
         like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
             # randomise tweets to like
-            if random() > 0.5:
+            if random() >= 0.5:
                 try:
                     like_buttons[button].click()
                     logging.info(bot_username + " liked a tweet.")

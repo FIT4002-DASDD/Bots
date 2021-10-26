@@ -60,6 +60,17 @@ bazel run //bot/util:dump_proto -- --serialized_proto=/home/akshay/Desktop/Uni/F
 This will dump the data out to the console as well as write to a `textproto` file with the same name in the same
 directory.
 
+## Running the Twitter Bots in production
+
+To start the bots run: `nohup ./scripts/start_server.sh & disown -a`. This script will run the bots in the background with no output to the terminal and detach them from the terminal so that they will keep running even when the terminal exits / ssh session closes.
+
+To stop the bots run: `./scripts/stop_server.sh`. This script will find any process name that matches 'start_server.sh', find and kill all its descendants.
+
+To configure the bot schedule, check `./scripts/bot_scheduler.py`:
+
+- Change `SLEEP_TIME` to modify the time between each schedule cycle
+- Change `CONCURRENT_BOTS` to modify the number of bots to run conconcurrently. This is currently set to be equal to the number of CPUs in the system.
+
 ## Build Push Service
 
 First install the AWS C++ SDK's dependencies by following

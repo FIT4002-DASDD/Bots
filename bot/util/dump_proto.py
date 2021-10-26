@@ -9,7 +9,8 @@ from google.protobuf import text_format
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('serialized_proto', None, 'Pass in full path to the serialized proto file for dumping (required).')
+flags.DEFINE_string('serialized_proto', None,
+                    'Pass in full path to the serialized proto file for dumping (required).')
 
 flags.mark_flags_as_required(['serialized_proto'])
 

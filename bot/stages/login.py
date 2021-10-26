@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.stages.bot_info import get_bot
+from bot.stages.scraping_util import refresh_page
 from bot.stages.scraping_util import wait_for_page_load
 
 FLAGS = flags.FLAGS
@@ -24,7 +25,11 @@ VERIFICATION_WAIT = 3
 
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
     if not _login(driver, username, password):
-        raise Exception('FAILURE. Log in was not successful.')
+        try:
+            if not wait_for_page_load(driver):
+                refresh_page(driver)
+        except:
+            raise Exception('FAILURE. Log in was not successful.')
 
 
 def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
@@ -38,22 +43,35 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
         e_username.send_keys(username)
         e_pw.send_keys(password)
         e_pw.send_keys(Keys.RETURN)
-
     except Exception as e:
         logging.info("UNSURE: Alternate login screen shown.")
         try:
-            alternate_screen_login(driver, username, password)
+            driver.get(TWITTER_LOGIN_URL)
+
+            e_username = WebDriverWait(driver, LOGIN_WAIT).until(
+                EC.visibility_of_element_located((By.NAME, 'session[username_or_email]')))
+            e_pw = driver.find_element_by_name('session[password]')
+
+            e_username.send_keys(username)
+            e_pw.send_keys(password)
+            e_pw.send_keys(Keys.RETURN)
+
         except Exception as e:
-            logging.info(e)
+            logging.info("UNSURE: Alternate login screen shown.")
+            try:
+                alternate_screen_login(driver, username, password)
+            except Exception as e:
+                logging.error(e)
+                return False
+
+        time.sleep(VERIFICATION_WAIT)
+        verify_phone_number(driver, username)
+
+        if wait_for_page_load(driver):
+            logging.info('Successfully logged in.')
+            return True
+        else:
             return False
-
-    time.sleep(VERIFICATION_WAIT)
-    verify_phone_number(driver, username)
-
-    if wait_for_page_load(driver):
-        logging.info('Successfully logged in.')
-        return True
-    return False
 
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
@@ -68,7 +86,18 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
         password.send_keys(bot_password)
         password.send_keys(Keys.RETURN)
     except:
-        return None
+        try:
+            account_phone_number = get_bot(bot_username, 'phone_number')
+            phone_number = driver.find_element(By.NAME, "text")
+            phone_number.send_keys(account_phone_number)
+            phone_number.send_keys(Keys.RETURN)
+
+            time.sleep(2)
+            password = driver.find_element(By.NAME, "password")
+            password.send_keys(bot_password)
+            password.send_keys(Keys.RETURN)
+        except:
+            return None
 
 
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:

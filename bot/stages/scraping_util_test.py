@@ -46,21 +46,24 @@ class ScrapingUtilTest(TestCase):
         :return:
         """
         self.mock_driver = None
-        self.flags.debug = False  # Reset it back to the original as some tests will modify this in place.
+        # Reset it back to the original as some tests will modify this in place.
+        self.flags.debug = False
 
     def test_get_timeline(self):
         mock_timeline = Mock()
         self.mock_driver.find_element.return_value = mock_timeline
         result = get_timeline(self.mock_driver)
         self.assertEqual(mock_timeline, result)
-        self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//div[@data-testid='primaryColumn']")
+        self.mock_driver.find_element.assert_called_once_with(
+            By.XPATH, "//div[@data-testid='primaryColumn']")
 
     def test_get_follow_sidebar(self):
         mock_sidebar = Mock()
         self.mock_driver.find_element.return_value = mock_sidebar
         result = get_follow_sidebar(self.mock_driver)
         self.assertEqual(mock_sidebar, result)
-        self.mock_driver.find_element.assert_called_once_with(By.XPATH, "//aside[@aria-label='Who to follow']")
+        self.mock_driver.find_element.assert_called_once_with(
+            By.XPATH, "//aside[@aria-label='Who to follow']")
 
     def test_take_element_screenshot(self):
         fake_screenshot_bytestring = b'\x89PNG\r\n\x1a\n'
@@ -88,7 +91,8 @@ class ScrapingUtilTest(TestCase):
     def test_load_more_tweets(self, mock_wait_for_page_load):
         mock_wait_for_page_load.return_value = True
         load_more_tweets(self.mock_driver)
-        self.mock_driver.execute_script.assert_called_once_with('window.scrollTo(0, document.body.scrollHeight);')
+        self.mock_driver.execute_script.assert_called_once_with(
+            'window.scrollTo(0, document.body.scrollHeight);')
 
     @patch('bot.stages.login.wait_for_page_load')
     def test_refresh_page(self, mock_wait_for_page_load):
@@ -99,21 +103,22 @@ class ScrapingUtilTest(TestCase):
     def test_search_promoted_tweet_in_timeline(self):
         mock_timeline = Mock()
         search_promoted_tweet_in_timeline(mock_timeline)
-        mock_timeline.find_element.assert_called_once_with(By.XPATH,
-                                                           ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
+        mock_timeline.find_element.assert_called_once_with(
+            By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[4]")
 
     def test_search_promoted_follow_in_sidebar(self):
         mock_sidebar = Mock()
         search_promoted_follow_in_sidebar(mock_sidebar)
-        mock_sidebar.find_element.assert_called_once_with(By.XPATH,
-                                                          ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
+        mock_sidebar.find_element.assert_called_once_with(
+            By.XPATH, ".//*[contains(text(), 'Promoted')]//ancestor::div[5]")
 
     def test_get_promoted_author(self):
         mock_promoted_tweet = Mock()
         mock_promoter = Mock()
         mock_promoted_tweet.find_element.return_value = mock_promoter
         get_promoted_author(mock_promoted_tweet)
-        mock_promoted_tweet.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), '@')]")
+        mock_promoted_tweet.find_element.assert_called_once_with(
+            By.XPATH, ".//*[contains(text(), '@')]")
         mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
     def test_get_promoted_tweet_link(self):
@@ -127,7 +132,8 @@ class ScrapingUtilTest(TestCase):
         mock_promoter = Mock()
         mock_promoted_follow.find_element.return_value = mock_promoter
         get_promoted_follow(mock_promoted_follow)
-        mock_promoted_follow.find_element.assert_called_once_with(By.XPATH, ".//*[contains(text(), '@')]")
+        mock_promoted_follow.find_element.assert_called_once_with(
+            By.XPATH, ".//*[contains(text(), '@')]")
         mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
     def test_get_promoted_follow_link(self):
@@ -135,7 +141,8 @@ class ScrapingUtilTest(TestCase):
         mock_link = Mock()
         mock_promoted_follow.find_element.return_value = mock_link
         get_promoted_follow_link(mock_promoted_follow)
-        mock_promoted_follow.find_element.assert_called_once_with(By.XPATH, ".//a")
+        mock_promoted_follow.find_element.assert_called_once_with(
+            By.XPATH, ".//a")
         mock_link.get_attribute.assert_called_once_with('href')
 
     def test_get_contents_and_likes(self):
