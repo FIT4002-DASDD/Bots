@@ -7,8 +7,6 @@ from datetime import datetime
 from absl import app
 from absl import flags
 from absl import logging
-from datetime import datetime
-
 
 from bot.stages.config import create_geckodriver
 from bot.stages.interact import interact, agree_to_policy_updates_if_exists
@@ -19,24 +17,14 @@ FLAGS = flags.FLAGS
 flags.DEFINE_bool('debug', True, 'Whether to run in debug mode.')
 flags.DEFINE_string('bot_username', None, 'Pass in bot username (required)')
 flags.DEFINE_string('bot_password', None, 'Pass in bot password (required)')
-flags.DEFINE_string('bot_output_directory', None,
-                    'Pass in directory for storing bot output (required)')
-flags.DEFINE_string('path_to_error_log', None,
-                    'Pass in the path for error logging')
+flags.DEFINE_string('bot_output_directory', None, 'Pass in directory for storing bot output (required)')
+flags.DEFINE_string('path_to_error_log', None, 'Pass in the path for error logging')
 
 flags.register_validator('bot_username', lambda username: username and len(username) > 0,
                          message='Invalid username detected.')
-flags.register_validator('bot_password', lambda pw: pw and len(
-    pw) > 0, message='Invalid password detected.')
+flags.register_validator('bot_password', lambda pw: pw and len(pw) > 0, message='Invalid password detected.')
 
-flags.mark_flags_as_required(
-    ['bot_username', 'bot_password', 'bot_output_directory'])
-
-
-def main(argv):
-    del argv  # Unused.
-    _main()
-
+flags.mark_flags_as_required(['bot_username', 'bot_password', 'bot_output_directory'])
 
 # Wait before start of each stage.
 STAGE_WAIT_DELAY = 5
@@ -45,7 +33,9 @@ STAGE_WAIT_DELAY = 5
 SHORT_WAIT = 3
 
 
-def _main():
+def main(argv):
+    del argv  # Unused.
+
     logging.info(f'----------Started bot: {FLAGS.bot_username}----------')
     # Create the driver.
     driver = create_geckodriver()
