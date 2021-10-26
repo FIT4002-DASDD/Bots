@@ -35,4 +35,3 @@ sudo apt-get install -y libpq-dev
 if ! command -v cmake3 &>/dev/null; then
   sudo apt-get install -y cmake
 fi
-

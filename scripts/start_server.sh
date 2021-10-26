@@ -10,7 +10,7 @@ bazel build //bot:app
 echo "-------Building push service with Bazel-------"
 bazel build //push-service:main --sandbox_writable_path=/home/${USERNAME}/.cache/bazel/
 
-bazel shutdown  # stop bazel server to reduce memory consumption
+bazel shutdown # stop bazel server to reduce memory consumption
 
 # Run bot scheduler
 echo "-------Running bot scheduler-------"

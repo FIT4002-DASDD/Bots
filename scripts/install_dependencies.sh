@@ -14,8 +14,8 @@ if ! command -v nvm &>/dev/null; then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
   . ~/.nvm/nvm.sh
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 if ! command -v node &>/dev/null; then
   nvm install node
@@ -47,4 +47,3 @@ sudo yum install libpqxx-devel -y
 if ! command -v cmake3 &>/dev/null; then
   sudo yum install -y cmake3
 fi
-
