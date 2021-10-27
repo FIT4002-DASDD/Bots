@@ -20,7 +20,7 @@ jobs:
       - name: Building push service
         run: bazel build //push-service:all --sandbox_writable_path=$HOME/.cache/bazel/
       - name: Deploy app
-        uses: easingthemes/sgitsh-deploy@main
+        uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_KEYPAIR }}
           ARGS: "-rLtgoDzvO --delete"
