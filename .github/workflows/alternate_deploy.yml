@@ -11,12 +11,15 @@ jobs:
   deploy:
     name: Deploy Bots and Push Service
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/master'
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v2
       - uses: bazelbuild/setup-bazelisk@v1
       - name: Building bots
         run: bazel build //bot:all
+      - run: sudo apt update
+      - name: Installing AWS SDK dependencies
+        run: sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
       - name: Building push service
         run: bazel build //push-service:all --sandbox_writable_path=$HOME/.cache/bazel/
       - name: Deploy app
