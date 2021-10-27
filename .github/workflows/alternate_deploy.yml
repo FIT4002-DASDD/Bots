@@ -1,0 +1,45 @@
+name: Build via GitHub Actions & deployment to Bot Server via SSH
+
+on:
+  workflow_run:
+    workflows: [ "DASDD Bots CI" ]
+    branches: [ master ]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy Bots and Push Service
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bazelbuild/setup-bazelisk@v1
+      - name: Building bots
+        run: bazel build //bot:all
+      - name: Building push service
+        run: bazel build //push-service:all --sandbox_writable_path=$HOME/.cache/bazel/
+      - name: Deploy app
+        uses: easingthemes/sgitsh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_KEYPAIR }}
+          ARGS: "-rLtgoDzvO --delete"
+          SOURCE: ${{ env.GITHUB_WORKSPACE }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET_DIRECTORY }}
+          EXCLUDE: "/.git/, bazel-testlogs"
+      - name: Update dependencies
+        uses: appleboy/ssh-action@master
+        env:
+          REMOTE_TARGET_DIRECTORY: ${{ secrets.REMOTE_TARGET_DIRECTORY }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEYPAIR }}
+          envs: REMOTE_TARGET_DIRECTORY
+          debug: false
+          script_stop: true
+          script: |
+            echo 'Running dependency installation script'
+            $REMOTE_TARGET_DIRECTORY/scripts/install_dependencies_ubuntu.sh
