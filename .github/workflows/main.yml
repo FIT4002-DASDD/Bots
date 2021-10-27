@@ -30,8 +30,8 @@ jobs:
   deploy:
     name: Deploy Bots and Push Service
     needs:
-      - test_bots
-      - test_push_service
+      - build_test_bots
+      - build_test_push_service
     runs-on: ubuntu-latest
     if: ${{ false }}  # disable for now
     #    if: github.ref == 'refs/heads/master'
@@ -50,4 +50,3 @@ jobs:
             --deployment-group-name BotsAppDG \
             --deployment-config-name CodeDeployDefault.OneAtATime \
             --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
-
