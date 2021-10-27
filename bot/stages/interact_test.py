@@ -52,17 +52,15 @@ class InteractTest(TestCase):
     @patch('bot.stages.bot_info.get_bot')
     @patch('bot.stages.interact.visit_account', return_value=True)
     @patch('bot.stages.interact.like_post', return_value=None)
-    def test_retweet_posts(self, mock_get_bot, mock_visit_account, mock_like_post):
+    @patch('random.random', return_value=0.5)
+    def test_retweet_posts(self, mock_get_bot, mock_visit_account, mock_like_post, mock_random):
         username = 'Melinda06678369'
         mock_tweet = Mock()
         mock_get_bot.return_value = ['@democracynow', '@IlhanMN']
         self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
         result = retweet_posts(self.mock_driver, username)
-        self.mock_driver.find_elements_by_xpath.assert_called_with(
-            '//div[@data-testid="retweet"]')
-        # TODO: test not deterministic due to randomness, refactor randomization to not run for tests
-        # self.mock_driver.find_element_by_xpath.assert_called_with(
-        #     '//div[@data-testid="retweetConfirm"]')
+        self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
+        self.mock_driver.find_element_by_xpath.assert_called_with('//div[@data-testid="retweetConfirm"]')
         self.assertEqual(None, result)
 
     def test_visit_account(self):
