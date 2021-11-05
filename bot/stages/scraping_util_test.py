@@ -112,7 +112,9 @@ class ScrapingUtilTest(TestCase):
         mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
     def test_get_promoted_tweet_link(self):
-        pass
+        mock_tweet = Mock()
+        get_promoted_tweet_link(mock_tweet, self.mock_driver)
+        mock_tweet.find_element.assert_called_with(By.XPATH, ".//*[contains(text(),'Promoted')]")
 
     def test_get_promoted_tweet_official_link(self):
         mock_tweet = Mock()

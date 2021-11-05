@@ -39,10 +39,6 @@ class InteractTest(TestCase):
         """
         self.mock_driver = None
 
-
-    def test_interact(self):
-        pass    
-
     def test_agree_to_policy_updates_if_exists(self):
         self.mock_driver.find_element_by_xpath.return_value = None
         result = agree_to_policy_updates_if_exists(self.mock_driver)
@@ -63,13 +59,15 @@ class InteractTest(TestCase):
         self.assertEqual(None, result)
 
     def test_like_post(self):
-        like_post(self.mock_driver, 'ElizaHahns')
+        result = like_post(self.mock_driver, 'ElizaHahns')
         self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="like"]')
+        self.assertEqual(result, None)
 
-
-    def test_visit_account(self):
-        visit_account(self.mock_driver, '@SkyNews')
+    @patch('bot.stages.scraping_util.wait_for_page_load', return_value=True)
+    def test_visit_account(self, mock_page_load):
+        result = visit_account(self.mock_driver, '@SkyNews')
         self.mock_driver.get.assert_called_with('https://twitter.com/@SkyNews')
+        self.assertEqual(result, False)
 
 
 if __name__ == '__main__':
