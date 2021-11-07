@@ -7,10 +7,10 @@ from unittest.mock import MagicMock, Mock, patch
 from absl import flags
 from selenium.webdriver.common.by import By
 
-from bot.stages.scraping_util import get_timeline, load_more_tweets, take_element_screenshot, get_follow_sidebar, \
-    refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, get_promoted_author, \
-    get_promoted_follow, get_promoted_follow_link, get_contents_and_likes
-
+from bot.stages.scraping_util import get_promoted_tweet_official_link, get_timeline, load_more_tweets, \
+    take_element_screenshot, get_follow_sidebar, refresh_page, search_promoted_tweet_in_timeline, search_promoted_follow_in_sidebar, \
+    get_promoted_author, get_promoted_tweet_link, get_promoted_follow, get_promoted_follow_link, get_tweet_content, \
+    click_retry_loading, wait_for_page_load
 
 class ScrapingUtilTest(TestCase):
     @classmethod
@@ -81,20 +81,20 @@ class ScrapingUtilTest(TestCase):
         self.assertEqual(result, fake_screenshot_bytestring)
         mock_element.screenshot.assert_called_once()
 
-    def test_wait_for_page_load(self):
-        pass
+    @patch('selenium.webdriver.support.ui.WebDriverWait')
+    @patch('selenium.webdriver.support.expected_conditions.visibility_of_element_located')
+    def test_wait_for_page_load(self, mock_webdriver_wait, mock_ec):
+        result = wait_for_page_load(self.mock_driver)
+        self.assertEqual(result, False)
 
-    def test_wait_for_page_load_failure(self):
-        pass
-
-    @patch('bot.stages.login.wait_for_page_load')
+    @patch('bot.stages.scraping_util.wait_for_page_load')
     def test_load_more_tweets(self, mock_wait_for_page_load):
         mock_wait_for_page_load.return_value = True
         load_more_tweets(self.mock_driver)
         self.mock_driver.execute_script.assert_called_once_with(
             'window.scrollTo(0, document.body.scrollHeight);')
 
-    @patch('bot.stages.login.wait_for_page_load')
+    @patch('bot.stages.scraping_util.wait_for_page_load')
     def test_refresh_page(self, mock_wait_for_page_load):
         mock_wait_for_page_load.return_value = True
         refresh_page(self.mock_driver)
@@ -125,7 +125,9 @@ class ScrapingUtilTest(TestCase):
         pass
 
     def test_get_promoted_tweet_official_link(self):
-        pass
+        mock_tweet = Mock()
+        get_promoted_tweet_official_link(mock_tweet)
+        mock_tweet.find_elements.assert_called_with(By.XPATH,".//*[contains(text(), 'Promoted')]//ancestor::div[4]//a[@role ""= 'link']")
 
     def test_get_promoted_follow(self):
         mock_promoted_follow = Mock()
@@ -145,14 +147,21 @@ class ScrapingUtilTest(TestCase):
             By.XPATH, ".//a")
         mock_link.get_attribute.assert_called_once_with('href')
 
-    def test_get_contents_and_likes(self):
+    def test_get_tweet_content(self):
         mock_contents_and_likes = Mock()
         self.mock_driver.find_elements_by_xpath.return_value = mock_contents_and_likes
-        result = get_contents_and_likes(self.mock_driver)
+        result = get_tweet_content(self.mock_driver)
         self.assertEqual(mock_contents_and_likes, result)
         self.mock_driver.find_elements_by_xpath.assert_called_once_with(
             '//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
 
+    @patch('bot.stages.scraping_util.wait_for_page_load')
+    @patch('bot.stages.scraping_util.refresh_page')
+    def test_click_retry_loading(self, mock_page_load, mock_refresh):
+        mock_page_load.return_value = False
+        mock_refresh.return_value = True
+        click_retry_loading(self.mock_driver)
+        self.mock_driver.find_elements_by_xpath.assert_called_once_with('//span[contains(text(), "Retry")]')
 
 if __name__ == '__main__':
     main()
