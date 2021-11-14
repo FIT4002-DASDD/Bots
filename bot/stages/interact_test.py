@@ -39,6 +39,8 @@ class InteractTest(TestCase):
         mock_get_bot.return_value = ['@democracynow', '@IlhanMN']
         self.mock_driver.find_elements_by_xpath.return_value = [mock_tweet]
         result = retweet_posts(self.mock_driver, username)
+        ### The following commented test code can be uncommented when run locally, however it is failing in GitHub Actions.
+        ### The test passes when run locally and it ensures that the right arguments are being passed to the function. 
         # self.mock_driver.find_elements_by_xpath.assert_called_with('//div[@data-testid="retweet"]')
         # self.mock_driver.find_element_by_xpath.assert_called_with('//div[@data-testid="retweetConfirm"]')
         self.assertEqual(None, result)

@@ -75,7 +75,7 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
 
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
-    """Function to login with the alternate Twitter login interface."""
+
     try:
         username = driver.find_element_by_name("username")
         username.send_keys(bot_username)

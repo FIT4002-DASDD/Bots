@@ -3,6 +3,7 @@ from typing import Union
 
 from absl import logging
 
+# The following dictionary contains all information related to the bot accounts
 bots = {
     'ElizaHahns': {
         'username': 'ElizaHahns',

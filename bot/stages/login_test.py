@@ -11,24 +11,6 @@ from bot.stages.login import login_or_die, alternate_screen_login, verify_phone_
 
 
 class LoginTest(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        """
-        Sets up code artifacts to be used for testing across all tests.
-        @note: runs only once for each test class as opposed to setUp()
-        :return:
-        """
-        pass
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """
-        Tears down code artifacts used for testing across all tests.
-        @note: runs only once for each test class as opposed to tearDown()
-        :return:
-        """
-        pass
-
     def setUp(self) -> None:
         """
         Sets up code artifacts to be used for testing prior to running each individual test case.
