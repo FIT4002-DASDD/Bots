@@ -13,7 +13,6 @@ from absl import logging
 from selenium.webdriver import Chrome, Firefox
 
 from bot.stages.bot_info import get_bot
-from bot.stages.scraping_util import get_contents_and_likes
 from bot.stages.scraping_util import get_follow_sidebar
 from bot.stages.scraping_util import get_promoted_author
 from bot.stages.scraping_util import get_promoted_follow
@@ -27,6 +26,8 @@ from bot.stages.scraping_util import search_promoted_follow_in_sidebar
 from bot.stages.scraping_util import search_promoted_tweet_in_timeline
 from bot.stages.scraping_util import take_element_screenshot
 from bot.stages.scraping_util import wait_for_page_load
+from bot.stages.scraping_util import get_tweet_content
+from bot.stages.scraping_util import click_retry_loading
 
 FLAGS = flags.FLAGS
 
@@ -41,15 +42,13 @@ ad_collection = ad_pb2.AdCollection()
 
 
 def interact(driver: Union[Firefox, Chrome], bot_username: str):
-    """
-    Executes the bot interaction flow and scrapes results.
-    """
+    """Executes the bot interaction flow and scrapes results."""
     _scrape(driver, bot_username)
-    # added randomisation to visiting account and retweeting tweets
+    # added randomisation to visiting account and retweeting/liking tweets
     if random() >= 0.5:
         retweet_posts(driver, bot_username)
     else:
-        logging.info('Not visiting accounts this cycle, random probability < 0.5')
+        logging.info('Not visiting accounts this cycle, random probability generated was < 0.5')
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
@@ -72,10 +71,11 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
     target = TARGET_AD_COUNT
     while target > 0:
         timeline = get_timeline(driver)
+        click_retry_loading(driver)
         promoted_in_timeline = search_promoted_tweet_in_timeline(timeline)
         sidebar = get_follow_sidebar(driver)
         promoted_in_follow_sidebar = search_promoted_follow_in_sidebar(sidebar)
-        contents_and_likes = get_contents_and_likes(driver)
+        contents_and_likes = get_tweet_content(driver)
         refresh = False
 
         # Process tweets to find for tweets that have certain keywords for liking

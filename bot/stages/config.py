@@ -13,6 +13,7 @@ flags.DEFINE_string('path_to_chromedriver',
 flags.DEFINE_string('path_to_geckodriver',
                     'webdrivers/geckodriver', 'Pass in the path to geckodriver.')
 
+# List containing all the options for the webdriver. E.g. headless webdriver
 WEBDRIVER_OPTIONS = [
     '--disable-blink-features=AutomationControlled',
     '--headless',
@@ -24,6 +25,7 @@ WEBDRIVER_OPTIONS = [
 
 
 def create_chromedriver() -> Chrome:
+    """Function to instantiate a Chrome webdriver."""
     op = ChromeOptions()
     for arg in WEBDRIVER_OPTIONS:
         op.add_argument(arg)
@@ -31,6 +33,7 @@ def create_chromedriver() -> Chrome:
 
 
 def create_geckodriver() -> Firefox:
+    """Function to instantiate a Firefox webdriver."""
     op = GeckoOptions()
     for arg in WEBDRIVER_OPTIONS:
         op.add_argument(arg)

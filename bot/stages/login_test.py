@@ -7,28 +7,10 @@ from unittest.mock import MagicMock, patch, Mock
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from bot.stages.login import login_or_die, alternate_screen_login
+from bot.stages.login import login_or_die, alternate_screen_login, verify_phone_number
 
 
 class LoginTest(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        """
-        Sets up code artifacts to be used for testing across all tests.
-        @note: runs only once for each test class as opposed to setUp()
-        :return:
-        """
-        pass
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """
-        Tears down code artifacts used for testing across all tests.
-        @note: runs only once for each test class as opposed to tearDown()
-        :return:
-        """
-        pass
-
     def setUp(self) -> None:
         """
         Sets up code artifacts to be used for testing prior to running each individual test case.
@@ -72,8 +54,17 @@ class LoginTest(TestCase):
         mock_username.send_keys.assert_called_with(Keys.RETURN)
         mock_password.send_keys.assert_called_with(Keys.RETURN)
 
-    def test_verify_phone_number(self):
-        pass
+    @patch('bot.stages.bot_info.get_bot')
+    def test_verify_phone_number(self, mock_get_bot):
+        mock_get_bot.return_value = "+61404245906"
+        mock_phone_element = Mock()
+        self.mock_driver.find_element_by_name.return_value = mock_phone_element
+        verify_phone_number(self.mock_driver, 'ElizaHahns')
+        xpath = "//strong[contains(text(), 'Your phone number ends in 06')]"
+        self.mock_driver.find_element_by_xpath.assert_called_with(xpath)
+        self.mock_driver.find_element_by_name.assert_called_with('challenge_response')
+        mock_phone_element.send_keys.assert_any_call("+61404245906")
+        mock_phone_element.send_keys.assert_any_call(Keys.RETURN)
 
 
 if __name__ == '__main__':
