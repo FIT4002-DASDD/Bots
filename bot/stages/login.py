@@ -22,8 +22,15 @@ TWITTER_LOGIN_URL = 'https://twitter.com/login'
 LOGIN_WAIT = 10
 VERIFICATION_WAIT = 3
 
-
 def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
+    """
+    Executes the login interaction flow.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+        username: bot account's username
+        password: bot account's password
+    """
     if not _login(driver, username, password):
         try:
             if not wait_for_page_load(driver):
@@ -33,6 +40,17 @@ def login_or_die(driver: Union[Firefox, Chrome], username: str, password: str):
 
 
 def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool:
+    """
+    Main login function that implements the login process.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+        username: bot account's username
+        password: bot account's password
+
+    Returns:
+        boolean representing successful/failed login
+    """
     try:
         driver.get(TWITTER_LOGIN_URL)
 
@@ -75,7 +93,17 @@ def _login(driver: Union[Firefox, Chrome], username: str, password: str) -> bool
 
 
 def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bot_password: str) -> None:
+    """
+    Main login function that implements the login process.
 
+    Parameters:
+        driver: reference to the Webdriver instance
+        bot_username: bot account's username
+        bot_password: bot account's password
+
+    Returns:
+        boolean representing successful/failed login
+    """
     try:
         username = driver.find_element_by_name("username")
         username.send_keys(bot_username)
@@ -101,7 +129,16 @@ def alternate_screen_login(driver: Union[Firefox, Chrome], bot_username: str, bo
 
 
 def verify_phone_number(driver: Union[Firefox, Chrome], bot_username: str) -> None:
-    """Key-in phone number if phone number verification is presented."""
+    """
+    Function to key-in phone number if phone number verification is presented.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+        bot_username: bot account's username
+
+    Returns:
+        boolean representing successful/failed login
+    """
     try:
         account_phone_number = get_bot(bot_username, 'phone_number')
 

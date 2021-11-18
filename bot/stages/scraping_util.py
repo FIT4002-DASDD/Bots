@@ -20,7 +20,15 @@ SCREENSHOT_COUNT = 1
 
 
 def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
-    """Returns a twitter timeline WebElement."""
+    """
+    Function that returns a twitter timeline WebElement.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+
+    Returns:
+        web element of the twitter timeline
+    """
     try:
         return driver.find_element(By.XPATH, "//div[@data-testid='primaryColumn']")
     except:
@@ -30,7 +38,15 @@ def get_timeline(driver: Union[Firefox, Chrome]) -> WebElement:
 
 
 def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
-    """Returns a twitter "Who to follow" sidebar WebElement."""
+    """
+    Function that returns a twitter "Who to follow" sidebar WebElement.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+
+    Returns:
+        web element of the twitter "Who to follow" sidebar
+    """
     try:
         return driver.find_element(By.XPATH, "//aside[@aria-label='Who to follow']")
     except:
@@ -40,15 +56,28 @@ def get_follow_sidebar(driver: Union[Firefox, Chrome]) -> WebElement:
 
 
 def take_element_screenshot(web_element: WebElement) -> str:
-    """Screenshots a given WebElement, returning it as a PNG bytestring."""
-    """If running in Debug mode, the PNG file is also saved to the bot's output directory."""
+    """
+    Screenshots a given WebElement, returning it as a PNG bytestring.
+    If running in Debug mode, the PNG file is also saved to the bot's output directory.
+        
+    Parameters:
+        web_element: reference to the web element to screenshot
+
+    Returns:
+        a PNG bytestring containing the image
+    """
     if FLAGS.debug:
         _take_screenshot_and_save_to_file(web_element)
     return web_element.screenshot_as_png
 
 
 def _take_screenshot_and_save_to_file(web_element: WebElement):
-    """Function to take screenshot and save to a file."""
+    """
+    Function to take screenshot and save to a file.
+
+    Parameters:
+        web_element: reference to the web element to screenshot
+    """
     global SCREENSHOT_COUNT
     screenshot_filename = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{SCREENSHOT_COUNT}.png'
     if web_element.screenshot(screenshot_filename):
@@ -57,7 +86,15 @@ def _take_screenshot_and_save_to_file(web_element: WebElement):
 
 
 def wait_for_page_load(driver: Union[Firefox, Chrome]) -> bool:
-    """Function to wait for page to load."""
+    """
+    Function to wait for page to load.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+
+    Returns:
+        boolean that represents a successful/failed page load
+    """
     logging.info('Waiting for page load...')
 
     try:
@@ -80,7 +117,15 @@ def wait_for_page_load(driver: Union[Firefox, Chrome]) -> bool:
 
 
 def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
-    """Function to load more tweets. It simulates scrolling the page downwards to lazy load more tweets."""
+    """
+    Function to load more tweets. It simulates scrolling the page downwards to lazy load more tweets.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+
+    Returns:
+        boolean that represents a successful/failed page load
+    """
     logging.info('Scrolling to lazy load more tweets...')
 
     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -88,7 +133,15 @@ def load_more_tweets(driver: Union[Firefox, Chrome]) -> bool:
 
 
 def refresh_page(driver: Union[Firefox, Chrome]) -> bool:
-    """Function to refresh the current page."""
+    """
+    Function to refresh the current page.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+
+    Returns:
+        boolean that represents a successful/failed page refresh
+    """
     logging.info('Refreshing page...')
 
     driver.refresh()
@@ -96,7 +149,15 @@ def refresh_page(driver: Union[Firefox, Chrome]) -> bool:
 
 
 def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement, None]:
-    """Function to search for promoted tweet in Twitter timeline."""
+    """
+    Function to search for promoted tweet in Twitter timeline.
+
+    Parameters:
+        timeline: reference the timeline web element
+
+    Returns:
+        web element that represents the promoted tweet or none if not found
+    """
     logging.info('Searching timeline for promoted tweets...')
 
     try:
@@ -109,7 +170,15 @@ def search_promoted_tweet_in_timeline(timeline: WebElement) -> Union[WebElement,
 
 
 def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, None]:
-    """Function to search for promoted accounts to follow in the sidebar of the page."""
+    """
+    Function to search for promoted accounts to follow in the sidebar of the page.
+
+    Parameters:
+        sidebar: reference the sidebar web element
+
+    Returns:
+        web element that represents the promoted accounts to follow in the sidebar of the page.
+    """
     logging.info('Searching sidebar for promoted follows...')
 
     try:
@@ -122,7 +191,15 @@ def search_promoted_follow_in_sidebar(sidebar: WebElement) -> Union[WebElement, 
 
 
 def get_promoted_author(promoted_tweet: WebElement) -> str:
-    """Function to get the promoted author of a promoted tweet."""
+    """
+    Function to get the promoted author of a promoted tweet.
+
+    Parameters:
+        promoted_tweet: the promoted tweet web element
+
+    Returns:
+        string of the promoted author
+    """
     promoter = promoted_tweet.find_element(By.XPATH, ".//*[contains(text(), '@')]")
     return promoter.get_attribute('innerHTML')
 
@@ -133,7 +210,7 @@ def get_promoted_tweet_link(promoted_tweet: WebElement, driver: Chrome) -> str:
 
     Parameters:
         promoted_tweet: WebElement for the promoted tweet
-        driver: web driver
+        driver: reference to the webdriver
 
     Returns:
         tweet_link: tweet link of the promoted tweet.
@@ -208,7 +285,15 @@ def get_promoted_follow(promoted_follow: WebElement) -> str:
 
 
 def get_promoted_follow_link(promoted_follow: WebElement) -> str:
-    """Function that returns the link of an account promoted as a follow suggestion."""
+    """
+    Function that returns the link of an account promoted as a follow suggestion.
+
+    Parameters:
+        promoted_follow: WebElement for the promoted follow suggestion
+
+    Returns:
+        the link of the promoted follow as a string
+    """
     try:
         link = promoted_follow.find_element(By.XPATH, ".//a").get_attribute('href')
     except Exception as e:
@@ -219,7 +304,16 @@ def get_promoted_follow_link(promoted_follow: WebElement) -> str:
 
 
 def get_tweet_content(driver: Union[Firefox, Chrome]) -> WebElement:
-    """Returns a web element that contains the tweet contents."""
+    """
+    Function that returns a web element that contains the tweet contents.
+
+    Parameters:
+        driver: reference to the Webdriver
+
+    Returns:
+        the web element of the tweet with contents
+    """
+    
     try:
         return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
     except:
@@ -228,7 +322,12 @@ def get_tweet_content(driver: Union[Firefox, Chrome]) -> WebElement:
         return driver.find_elements_by_xpath('//div[@data-testid="like"]//ancestor::div[4]/child::div[1]')
 
 def click_retry_loading(driver: Union[Firefox, Chrome]) -> None:
-    """Function to click retry loading to ensure the timeline and sidebar loads elements."""
+    """
+    Function to click retry loading to ensure the timeline and sidebar loads elements.
+
+    Parameters:
+        driver: reference to the Webdriver
+    """
     try:
         buttons = driver.find_elements_by_xpath('//span[contains(text(), "Retry")]')
         for button in buttons:

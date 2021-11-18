@@ -42,7 +42,13 @@ ad_collection = ad_pb2.AdCollection()
 
 
 def interact(driver: Union[Firefox, Chrome], bot_username: str):
-    """Executes the bot interaction flow and scrapes results."""
+    """
+    Executes the bot interaction flow and scrapes results.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+        bot_username: bot account's username
+    """
     _scrape(driver, bot_username)
     # added randomisation to visiting account and retweeting/liking tweets
     if random() >= 0.5:
@@ -52,7 +58,12 @@ def interact(driver: Union[Firefox, Chrome], bot_username: str):
 
 
 def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
-    """Click 'Ok' on the policy update pop-up if present."""
+    """
+    Click 'Ok' on the policy update pop-up if present.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+    """
     try:
         dialog = driver.find_element_by_xpath("//div[@role='dialog']")
         dialog.find_element_by_xpath(".//div[@role='button']").click()
@@ -63,7 +74,12 @@ def agree_to_policy_updates_if_exists(driver: Union[Firefox, Chrome]) -> None:
 
 
 def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
-    """Scrapes the bot's timeline for Promoted content."""
+    """
+    Scrapes the bot's timeline for Promoted content.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+    """
     bot = bot_pb2.Bot()
     bot.id = bot_username
     ad_collection.bot.id = bot.id
@@ -125,7 +141,9 @@ def _scrape(driver: Union[Firefox, Chrome], bot_username: str):
 
 
 def _write_out_ad_collection():
-    """Serializes the AdCollection proto and writes it out to a binary file."""
+    """
+    Serializes the AdCollection proto and writes it out to a binary file.
+    """
     # Path to the binary file containing the serialized protos for this bot.
     current_time = datetime.now()
     location = f'{FLAGS.bot_output_directory}/{FLAGS.bot_username}_{current_time.strftime("%Y%m%d")}_{int(current_time.timestamp())}_out'
@@ -138,7 +156,13 @@ def _write_out_ad_collection():
 
 
 def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
-    """Function to retweet posts from followed accounts."""
+    """
+    Function to retweet/like posts from followed accounts.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+        bot_username: bot account's username
+    """
     accounts = get_bot(bot_username, 'followed_accounts')
     accounts_to_visit = set()
     for i in range(0, randint(0, len(accounts))):
@@ -172,7 +196,13 @@ def retweet_posts(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
 
 def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
-    """Function to randomly like tweets."""
+    """
+    Function to randomly like tweets.
+    
+    Parameters:
+        driver: reference to the Webdriver instance
+        bot_username: bot account's username
+    """
     try:
         like_buttons = driver.find_elements_by_xpath('//div[@data-testid="like"]')
         for button in range(0, len(like_buttons)):
@@ -190,7 +220,16 @@ def like_post(driver: Union[Firefox, Chrome], bot_username: str) -> None:
 
 
 def visit_account(driver: Union[Firefox, Chrome], followed_account: str) -> bool:
-    """Function to visit a Twitter account page."""
+    """
+    Function to visit a Twitter account page.
+
+    Parameters:
+        driver: reference to the Webdriver instance
+        followed_account: string of twitter account handle
+
+    Returns:
+        boolean that represents a successful/failed attempt at visiting the account
+    """
     try:
         profile_url = 'https://twitter.com/' + followed_account
         driver.get(profile_url)

@@ -121,9 +121,6 @@ class ScrapingUtilTest(TestCase):
             By.XPATH, ".//*[contains(text(), '@')]")
         mock_promoter.get_attribute.assert_called_once_with('innerHTML')
 
-    def test_get_promoted_tweet_link(self):
-        pass
-
     def test_get_promoted_tweet_official_link(self):
         mock_tweet = Mock()
         get_promoted_tweet_official_link(mock_tweet)
