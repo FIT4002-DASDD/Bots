@@ -1,0 +1,10 @@
+[Unit]
+Description=Bots for scraping Twitter ad data
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/foo-daemon
+
+[Install]
+WantedBy=multi-user.target

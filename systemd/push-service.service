@@ -1,0 +1,12 @@
+[Unit]
+Description=Push Service for bot data upload
+#Requires=bots.service
+After=network.target
+
+[Service]
+Type=simple
+Environment=MY_MESSAGE=hello
+ExecStart=/home/ubuntu/projects/Bots/bazel-bin/push-service/main
+
+[Install]
+WantedBy=multi-user.target
